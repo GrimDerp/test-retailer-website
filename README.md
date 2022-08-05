@@ -24,38 +24,40 @@ See this [link](http://stackoverflow.com/questions/21250510/generate-pem-file-us
 
 Ignore all the stuff about push certificates, this works for converting our Merchant Identity Certificate as well.
 
-##### Basic steps:
-
-1. Import the .cer into Keychain, export both the certificate and private key as a single applePayCert.p12 
-file then run:
+1. Import the .cer into Keychain app on your Mac, then export both the certificate and private key as a 
+single `applePayCert.p12` file, then run:
 
 ```shell
 openssl pkcs12 -in applePayCert.p12 -out applePayCert.pem -nodes -clcerts
 ```
 
-2. Then put the pem file in `/certificates` folder
+2. Put the `applePayCert.pem` file in `/certificates` folder
 
-### Testing Locally
+### Set up a domain
 
-First install all prerequisites by running `npm install`.
+Choose a domain name that you will use, and map it to 127.0.0.1 in your hosts file. For
+the remainder of this readme I will assume that you chose `test-retailer.narvar.qa`.
 
-Then run `npm run dev` and browse to `http://localhost:4567/` using Safari.
-You should be able to open the page. Note that the Apple Pay button does not 
-work in Chrome or any other browser except Safari, and only works on a Mac or an iPhone.
-
-### Validate your domain
-
-Next, follow the instructions [here](https://developer.apple.com/reference/applepayjs/) to validate your merchant domain.
-Apple will provide a file with which to perform the validation.
+Next, follow the instructions [here](https://developer.apple.com/reference/applepayjs/) to validate
+your merchant domain. Apple will provide a file with which to perform the validation.
 
 Place the file in the `.well-known` folder
 
-Finally, with all that done you can hit `https://test-retailer.narvar.qa` and perform an ApplePay transaction in two ways:
+### Create a self-signed SSL certificate
 
+Apple Pay only works on websites that are secure. This means that you need to create an SSL
+certificate for your chosen domain name and set it to "Trusted" in the Keychain app on your Mac.
+
+## Running Locally
+
+First install all prerequisites by running `npm install`.
+
+Then run `npm run dev` and browse to `https://test-retailer.narvar.qa:4567/` using Safari.
+
+Note that the Apple Pay button does not work in Chrome or any other browser except Safari, 
+and only works when running on Apple hardware.
 * From Safari on an iOS 10 device with ApplePay support
 * From Safari on a Mac running macOS Sierra that [supports Handoff](https://support.apple.com/kb/PH25169?locale=en_US) (2012 and later hardware)
-
-After completing a transaction you should see a RegistrationId appear.
 
 ## Apple Resources
 
