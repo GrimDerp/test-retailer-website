@@ -1,8 +1,4 @@
 /*
-Adapted from EmporiumWeb:
-https://developer.apple.com/library/content/samplecode/EmporiumWeb/Introduction/Intro.html
- 
-Abstract:
 The main client-side JS. Handles displaying the Apple Pay button and requesting a payment.
 */
 

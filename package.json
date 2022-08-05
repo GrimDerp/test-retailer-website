@@ -5,6 +5,7 @@
   "main": "app.js",
   "scripts": {
     "dev": "nodemon ./lib/app.js --exec babel-node",
+    "clean": "rm -Rf dist",
     "build": "babel lib -d dist ",
     "start": "node dist/app.js"
   },

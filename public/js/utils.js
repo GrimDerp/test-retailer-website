@@ -1,9 +1,29 @@
-/*
-Adapted from EmporiumWeb:
-https://developer.apple.com/library/content/samplecode/EmporiumWeb/Introduction/Intro.html
-*/
-
-function setLitleResponseFields(response) {
+function getApplePaySession(url) {
+    return new Promise(function (resolve, reject) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', '/getApplePaySession');
+      xhr.onload = function () {
+        if (this.status >= 200 && this.status < 300) {
+          resolve(JSON.parse(xhr.response));
+        } else {
+          reject({
+            status: this.status,
+            statusText: xhr.statusText
+          });
+        }
+      };
+      xhr.onerror = function () {
+        reject({
+          status: this.status,
+          statusText: xhr.statusText
+        });
+      };
+      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.send(JSON.stringify({url: url}));
+    });
+  }
+  
+  function setLitleResponseFields(response) {
     var regId = response.paypageRegistrationId;
     console.log('regId: ' + regId);
     alert('regId: ' + regId);
@@ -72,10 +92,10 @@ function sendToLitle(payment) {
     return false;
 }
 
-function sendToIP(registrationId) {
+function completeOrder(registrationId) {
     return new Promise(function (resolve, reject) {
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', '/makeNarvarCall');
+        xhr.open('POST', '/completeOrder');
         xhr.onload = function () {
             if (this.status >= 200 && this.status < 300) {
                 alert(xhr.response);
@@ -97,3 +117,4 @@ function sendToIP(registrationId) {
         xhr.send(JSON.stringify({ registrationId: registrationId, amount: "8.99" }));
     });
 }
+

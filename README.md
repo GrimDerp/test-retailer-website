@@ -48,6 +48,9 @@ Place the file in the `.well-known` folder
 Apple Pay only works on websites that are secure. This means that you need to create an SSL
 certificate for your chosen domain name and set it to "Trusted" in the Keychain app on your Mac.
 
+ssl_cert.pem
+ssl_key.pem
+
 ## Running Locally
 
 First install all prerequisites by running `npm install`.
