@@ -3,5 +3,4 @@ node_modules
 .vscode
 npm-debug.log
 acme-challenge
-cert.pem
-key.pem
+certificates

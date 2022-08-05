@@ -39,22 +39,18 @@ openssl pkcs12 -in applePayCert.p12 -out applePayCert.pem -nodes -clcerts
 
 First install all prerequisites by running `npm install`.
 
-Then run `npm run dev` and browse to `http://localhost:4567/`. You should be able to open the page, but ApplePay won't work locally.
-
-The `app.js` will run using HTTP instead of HTTPS.
-This also has the nice side benefit that we don't need the sslKey or sslCert like we would with original EmporiumWeb example 
-(but we still need the applePayCert).
-
-If running locally using `npm run dev` then the server will spin up on port 4567 otherwise `process.env.PORT` will be used.
+Then run `npm run dev` and browse to `http://localhost:4567/` using Safari.
+You should be able to open the page. Note that the Apple Pay button does not 
+work in Chrome or any other browser except Safari, and only works on a Mac or an iPhone.
 
 ### Validate your domain
 
 Next, follow the instructions [here](https://developer.apple.com/reference/applepayjs/) to validate your merchant domain.
 Apple will provide a file with which to perform the validation.
 
-Place the file in the `.well-known` folder, commit the file with 
+Place the file in the `.well-known` folder
 
-Finally, with all that done you can hit `https://<name>.herokuapp.com` and perform an ApplePay transaction in two ways:
+Finally, with all that done you can hit `https://test-retailer.narvar.qa` and perform an ApplePay transaction in two ways:
 
 * From Safari on an iOS 10 device with ApplePay support
 * From Safari on a Mac running macOS Sierra that [supports Handoff](https://support.apple.com/kb/PH25169?locale=en_US) (2012 and later hardware)
