@@ -1,0 +1,13 @@
+{
+    "$schema": "https://json.schemastore.org/web-manifest-combined.json",
+    "name": "Narvar Test Retailer",
+    "short_name": "Narvar",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#fff",
+    "description": "An example of integrating Apple Wallet using Narvar.",
+    "icons": [{
+      "src": "images/narvar.svg",
+      "sizes": "any"
+      }]
+}

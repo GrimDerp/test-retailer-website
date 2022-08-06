@@ -74,9 +74,29 @@ domain.
 ### Create a self-signed SSL certificate
 Apple Pay only works on websites that are secure. This means that you need to create an SSL
 certificate for your chosen domain name and set it to "Trusted" in the Keychain app on your Mac.
+You need to copy the SSL key and certificate files to the `./certificates` folder.
 
-ssl_cert.pem
-ssl_key.pem
+Be sure to set the "common name" of your certificate to the domain name that you chose.
+
+```shell
+openssl genrsa -out ssl_key.pem
+openssl req -new -key ssl_key.pem -out ssl_csr.pem
+openssl x509 -req -days 9999 -in ssl_csr.pem -signkey ssl_key.pem -out ssl_cert.pem
+```
+
+Next you need to get Safari to trust the self-signed certificate by adding it to
+the keychain on your mac and modifying the trust level.
+
+* Open the Keychain Access app on your Mac and import the `ssl_cert.pem` file.
+* Double click on the certificate
+* Expand the Trust section and set the certificate to trusted
+* To save the changes you will need to enter your password
+
+Now you should be able to run the service and navigate to `https://test-retailer.narvar.qa/`
+in the Safari browser and see the index page.
+
+Note: If you want to visit the real test-retailer.narvar.qa then you will have to
+comment out the line in your `hosts` file that maps `test-retailer.narvar.qa` to 127.0.0.1.
 
 ## Running Locally
 First install all prerequisites by running `npm install`.

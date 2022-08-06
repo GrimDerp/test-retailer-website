@@ -1,39 +1,37 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<link rel="stylesheet" type="text/css" href="css/style.css">
-		<link rel="apple-touch-icon" sizes="120x120" href="images/touch-icon-120.png">
-		<link rel="apple-touch-icon" sizes="152x152" href="images/touch-icon-152.png">
-		<link rel="apple-touch-icon" sizes="167x167" href="images/touch-icon-167.png">
-		<link rel="apple-touch-icon" sizes="180x180" href="images/touch-icon-180.png">
-		<script src="js/index.js"></script>
-		<script src="js/utils.js"></script>
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript"></script>
-		<title>Apple Pay Example</title>
-	</head>
 
-	<body>
-		<div class="apple-pay">
-			<div id="wrapperHeader">
-            <div id="header">
-                <img src="images/narvar.svg" alt="logo" height="50px"/>
-            </div>
-        </div>
-        <div id="header">
-            <img src="images/skis.png" alt="logo" />
-        </div>
-			<h2> Buy these Snazzy Skis with Apple&nbsp;Pay </h2>
-			<p>
-				This is a very very simple example site that demonstrates Apple&nbsp;Pay on the web with Narvar integration to Apple Wallet.
-			</p>
-			<p>
-				Compatible browsers will display an Apple&nbsp;Pay button below.
-			</p>
-			<div class="apple-pay-button" onclick="applePayButtonClicked()">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="manifest" href="manifest.json">
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+	<script src="js/index.js"></script>
+	<script src="js/utils.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript"></script>
+	<title>Narvar Test Retailer</title>
+</head>
 
+<body>
+	<div class="apple-pay">
+		<div id="wrapperHeader">
+			<div id="header">
+				<img src="images/narvar.svg" alt="logo" height="50px" />
 			</div>
 		</div>
-	</body>
+		<div id="header">
+			<img src="images/skis.png" alt="logo" />
+		</div>
+		<h2>Buy these Snazzy Skis with Apple&nbsp;Pay</h2>
+		<p>
+			This is a very very simple example site that demonstrates Apple&nbsp;Pay on the web with Narvar integration
+			to Apple Wallet.
+		</p>
+		<p>
+			Compatible browsers will display an Apple&nbsp;Pay button below.
+		</p>
+		<div class="apple-pay-button" onclick="applePayButtonClicked()"></div>
+	</div>
+</body>
+
 </html>
