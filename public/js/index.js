@@ -34,6 +34,7 @@ function showApplePayButton() {
 * Triggered when the Apple Pay button is pressed
 */
 function applePayButtonClicked() {
+	console.log("applePayButtonClicked");
 	const paymentRequest = {
 		countryCode: 'US',
 		currencyCode: 'USD',
@@ -72,12 +73,8 @@ function applePayButtonClicked() {
 
 	const session = new ApplePaySession(1, paymentRequest);
 	
-	/**
-	* Merchant Validation
-	* We call our merchant session endpoint, passing the URL to use
-	*/
 	session.onvalidatemerchant = (event) => {
-		console.log("Validate merchant");
+		console.log("session.onvalidatemerchant");
 		const validationURL = event.validationURL;
 		getApplePaySession(event.validationURL).then(function(response) {
   			console.log(response);
@@ -85,13 +82,8 @@ function applePayButtonClicked() {
 		});
 	};
 
-	/**
-	* Shipping Method Selection
-	* If the user changes their chosen shipping method we need to recalculate
-	* the total price. We can use the shipping method identifier to determine
-	* which method was selected.
-	*/
 	session.onshippingmethodselected = (event) => {
+		console.log("session.onshippingmethodselected");
 		const shippingCost = event.shippingMethod.identifier === 'free' ? '0.00' : '5.00';
 		const totalCost = event.shippingMethod.identifier === 'free' ? '8.99' : '13.99';
 
@@ -110,18 +102,15 @@ function applePayButtonClicked() {
 		session.completeShippingMethodSelection(ApplePaySession.STATUS_SUCCESS, total, lineItems);
 	};
 
-	/**
-	* Payment Authorization
-	* Here you receive the encrypted payment data. You would then send it
-	* on to your payment provider for processing, and return an appropriate
-	* status in session.completePayment()
-	*/
 	session.onpaymentauthorized = (event) => {
-		// Send payment for processing...
-		const payment = event.payment;
-		
-		sendToLitle(payment);
-		// ...return a status and redirect to a confirmation page
+		console.log("session.onpaymentauthorized");
+
+		// Send encrypted payment information for processing.
+		// The private key associated with Payment Processing Certificate 
+		// must be used to decrypt the response on the server-side
+		processPayment(event.payment);
+
+		// Return a status and redirect to a confirmation page
 		session.completePayment(ApplePaySession.STATUS_SUCCESS);
 	}
 

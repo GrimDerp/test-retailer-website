@@ -21,78 +21,29 @@ function getApplePaySession(url) {
       xhr.setRequestHeader("Content-Type", "application/json");
       xhr.send(JSON.stringify({url: url}));
     });
+}
+
+function uuidv4() {
+    return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+      (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+    );
   }
-  
-  function setLitleResponseFields(response) {
-    var regId = response.paypageRegistrationId;
-    console.log('regId: ' + regId);
-    alert('regId: ' + regId);
 
-    sendToIP(regId);
-}
-function submitAfterLitle(response) {
-    console.log('setLiteResponseFields response ' + response);
-    setLitleResponseFields(response);
-}
-function timeoutOnLitle() {
-    alert("We are experiencing technical difficulties. Please try again later or call 555-555-1212 (timeout)");
-}
-function onErrorAfterLitle(response) {
-    setLitleResponseFields(response);
-    if (response.response == '871') {
-        alert("Invalid card number. Check and retry. (Not Mod10)");
-    }
-    else if (response.response == '872') {
-        alert("Invalid card number. Check and retry. (Too short)");
-    }
-    else if (response.response == '873') {
-        alert("Invalid card number. Check and retry. (Too long)");
-    }
-    else if (response.response == '874') {
-        alert("Invalid card number. Check and retry. (Not a number)");
-    }
-    else if (response.response == '875') {
-        alert("We are experiencing technical difficulties. Please try again later or call 555-555-1212");
-    }
-    else if (response.response == '876') {
-        alert("Invalid card number. Check and retry. (Failure from Server)");
-    }
-    else if (response.response == '881') {
-        alert("Invalid card validation code. Check and retry. (Not a number)");
-    }
-    else if (response.response == '882') {
-        alert("Invalid card validation code. Check and retry. (Too short)");
-    }
-    else if (response.response == '883') {
-        alert("Invalid card validation code. Check and retry. (Too long)");
-    }
-    else if (response.response == '889') {
-        alert("We are experiencing technical difficulties. Please try again later or call 555-555-1212");
-    }
-    return false;
-}
-
-function sendToLitle(payment) {
-    console.log("sendToLitle hit");
+function processPayment(payment) {
+    console.log("processPayment");
     console.log(applePay);
-    var litleRequest = {
-        "paypageId": "<REPLACE_ME>",
-        "reportGroup": "reportGroup",
-        "orderId": "orderId",
-        "id": "id",
-        "applepay": payment.token.paymentData,
-        "url": "https://request-prelive.np-securepaypage-litle.com"
-    };
-    console.log(litleRequest);
-    var formFields = {
-        "paypageRegistrationId": document.createElement("input")
-    };
-    console.log(formFields);
-    var response = new LitlePayPage().sendToLitle(litleRequest, formFields, submitAfterLitle, onErrorAfterLitle, timeoutOnLitle, 15000);
-    return false;
+    console.log(payment);
+
+    // Call a payment provider with payment details and
+    // finalize the payment transaction
+    const paymentToken = "P_" + uuidv4();
+
+    // If payment was success, then create an order from the cart contents
+    return createOrder(paymentToken, "8.99");
 }
 
-function completeOrder(registrationId) {
+function createOrder(paymentToken, amount) {
+    const orderNumber = "O_" + uuidv4();
     return new Promise(function (resolve, reject) {
         var xhr = new XMLHttpRequest();
         xhr.open('POST', '/completeOrder');
@@ -114,7 +65,11 @@ function completeOrder(registrationId) {
             });
         };
         xhr.setRequestHeader("Content-Type", "application/json");
-        xhr.send(JSON.stringify({ registrationId: registrationId, amount: "8.99" }));
+        xhr.send(JSON.stringify({ 
+            orderNumber: orderNumber, 
+            paymentToken: paymentToken,
+            amount: amount
+        }));
     });
 }
 
