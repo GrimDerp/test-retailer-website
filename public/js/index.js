@@ -27,7 +27,6 @@ function showApplePayButton() {
 	}
 }
 
-
 /**
 * Apple Pay Logic
 * Our entry point for Apple Pay interactions.
@@ -71,12 +70,12 @@ function applePayButtonClicked() {
 		requiredShippingContactFields: [ 'postalAddress', 'email' ],
 	};
 
-	const session = new ApplePaySession(1, paymentRequest);
+	const applePayVersion = 1;
+	const session = new ApplePaySession(applePayVersion, paymentRequest);
 	
 	session.onvalidatemerchant = (event) => {
 		console.log("session.onvalidatemerchant");
-		const validationURL = event.validationURL;
-		getApplePaySession(event.validationURL).then(function(response) {
+		callApplePay(event.validationURL).then(function(response) {
   			console.log(response);
   			session.completeMerchantValidation(response);
 		});
@@ -102,16 +101,41 @@ function applePayButtonClicked() {
 		session.completeShippingMethodSelection(ApplePaySession.STATUS_SUCCESS, total, lineItems);
 	};
 
+	// This function is called by Apple Pay when the user chooses a payment 
+	// method and authorizes the amount to be charged
 	session.onpaymentauthorized = (event) => {
 		console.log("session.onpaymentauthorized");
 
 		// Send encrypted payment information for processing.
 		// The private key associated with Payment Processing Certificate 
 		// must be used to decrypt the response on the server-side
-		processPayment(event.payment);
-
-		// Return a status and redirect to a confirmation page
-		session.completePayment(ApplePaySession.STATUS_SUCCESS);
+		processPayment(session.paymentRequest, event.payment)
+			.then((result) => {
+				// In this case the payment was successful and the order was placed.
+				// result.orderDetails contains information on how to retrieve the
+				// order details from the order management system and subscribe to 
+				// shipping events. In this example Narvar provides these details 
+				// to simplify retailer integrations.
+				session.completePayment({
+					status: ApplePaySession.STATUS_SUCCESS,
+					orderDetails: result.orderDetails,
+				});
+                window.location.href = "/success.html";
+			})
+			.catch((result) => {
+				if (result.errors) {
+					// In this case the payment request was rejected by payment provider
+					// For example name or address does not match the card provider information
+					// result.errors must be an array of ApplePayError objects
+					session.completePayment({
+						status: ApplePaySession.STATUS_FAILURE,
+						errors: result.errors,
+					});
+				} else {
+					// In this case something else went wrong - network error, service down etc
+					throw result;
+				}
+			});
 	}
 
 	// All our handlers are setup - start the Apple Pay payment

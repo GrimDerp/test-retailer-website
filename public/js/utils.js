@@ -1,7 +1,11 @@
-function getApplePaySession(url) {
+// Makes a call to the Apple Pay servers via the retailer back-end
+// so that Apple can tell that the request is genuinely from this
+// retailer. The back-end srver will establish a mTLS connection to
+// Apple servers to forward this request
+function callApplePay(url) {
     return new Promise(function (resolve, reject) {
       var xhr = new XMLHttpRequest();
-      xhr.open('POST', '/getApplePaySession');
+      xhr.open('POST', '/proxyApplePay');
       xhr.onload = function () {
         if (this.status >= 200 && this.status < 300) {
           resolve(JSON.parse(xhr.response));
@@ -23,34 +27,50 @@ function getApplePaySession(url) {
     });
 }
 
+// Generates a random globally unique identifier
 function uuidv4() {
     return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
       (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
     );
-  }
+}
 
-function processPayment(payment) {
+// This function is passed payment information (for example credit card details)
+// and should use these details to pay for the order. Since this is a demo website
+// the payment a;ways succeeds without charging the card
+function processPayment(paymentRequest, payment) {
     console.log("processPayment");
     console.log(applePay);
+    console.log(applePaySession);
     console.log(payment);
 
     // Call a payment provider with payment details and
-    // finalize the payment transaction
+    // finalize charge this order to the customer's card
     const paymentToken = "P_" + uuidv4();
 
     // If payment was success, then create an order from the cart contents
-    return createOrder(paymentToken, "8.99");
+    return createOrder(paymentRequest, paymentToken);
 }
 
-function createOrder(paymentToken, amount) {
-    const orderNumber = "O_" + uuidv4();
+// Following a successful response from the payment provider, the credit card
+// has been changed and it is time to convert the cart into an order.
+function createOrder(paymentRequest, paymentToken) {
+    console.log("createOrder");
     return new Promise(function (resolve, reject) {
         var xhr = new XMLHttpRequest();
         xhr.open('POST', '/completeOrder');
         xhr.onload = function () {
             if (this.status >= 200 && this.status < 300) {
-                alert(xhr.response);
-                window.location.href = "/success.html";
+                if (this.response.errors) {
+                    reject({
+                        status: this.status,
+                        errors: this.response.errors,
+                    });
+                } else {
+                    resolve({
+                        status: this.status,
+                        orderDetails: this.response.orderDetails
+                    });
+                }
             } else {
                 reject({
                     status: this.status,
@@ -64,11 +84,11 @@ function createOrder(paymentToken, amount) {
                 statusText: xhr.statusText
             });
         };
+        xhr.responseType = 'json';
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.send(JSON.stringify({ 
-            orderNumber: orderNumber, 
+            paymentRequest: paymentRequest,
             paymentToken: paymentToken,
-            amount: amount
         }));
     });
 }
