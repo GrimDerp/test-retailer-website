@@ -24,7 +24,7 @@ jobs:
           root: ~/
           paths:
             - ./test-retailer-website/package.json
-            - ./test-retailer-website/DockerFile
+            - ./test-retailer-website/Dockerfile
             - ./test-retailer-website/node_modules
             - ./test-retailer-website/dist
             - ./test-retailer-website/public
