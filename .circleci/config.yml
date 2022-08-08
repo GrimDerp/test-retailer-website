@@ -43,7 +43,7 @@ jobs:
             -t $DOCKER_REPO/test-retailer-website:$GIT_HASH \
             -t $DOCKER_REPO/test-retailer-website:$CIRCLE_BRANCH \
             .
-      - run: docker push $GIT_HASH
+      - run: docker push $DOCKER_REPO/test-retailer-website:$GIT_HASH
   deploy:
     working_directory: /devops
     docker:
