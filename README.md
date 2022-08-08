@@ -108,7 +108,14 @@ and only works when running on Apple hardware.
 * From Safari on an iOS 10 device with ApplePay support
 * From Safari on a Mac running macOS Sierra that [supports Handoff](https://support.apple.com/kb/PH25169?locale=en_US) (2012 and later hardware)
 
+## Running in Docker locally
+1. Build the application into the dist folder: `npm run build`
+2. Build a new docker image: `docker build -t test-retailer-website .`
+3. Delete the prior Docker container: `docker rm -f test-retailer-website`
+4. Run a new Docker container: `docker run -p 4567:4567 -t --name test-retailer-website test-retailer-website`
+
 ## Apple Resources
 * [Apple Pay Developer Site](https://developer.apple.com/apple-pay/)
 * [Apple Pay on the web WWDC Session Video](https://developer.apple.com/videos/play/wwdc2016/703/)
 * [Apple Pay Domain Verification](https://developer.apple.com/support/apple-pay-domain-verification/)
+

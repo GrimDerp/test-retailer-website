@@ -1,0 +1,87 @@
+aliases:
+  - &attach_workspace
+    attach_workspace:
+      at: ~/
+
+version: 2.1
+jobs:
+  build:
+    docker:
+      - image: cimg/node:16.14.0
+    working_directory: ~/test-retailer-website
+    steps:
+      - checkout
+      - *attach_workspace
+      - restore_cache:
+          key: v1-node-{{ arch }}-{{ checksum "package-lock.json" }}
+      - run: npm install
+      - save_cache:
+          key: v1-node-{{ arch }}-{{ checksum "package-lock.json" }}
+          paths:
+            - ~/test-retailer-website/node_modules
+      - run: npm run build
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - ./test-retailer-website/package.json
+            - ./test-retailer-website/DockerFile
+            - ./test-retailer-website/node_modules
+            - ./test-retailer-website/dist
+            - ./test-retailer-website/public
+  publish:
+    docker:
+      - image: $DOCKER_REPO/alpine-node:12.1.0-master
+    working_directory: ~/test-retailer-website
+    steps:
+      - *attach_workspace
+      - setup_remote_docker
+      - run: echo 'export GIT_HASH=$(eval echo ${CIRCLE_SHA1:0:7})' >> $BASH_ENV
+      - run: |
+          aws ecr get-login --no-include-email --region $AWS_REGION | awk '{printf $6}' | docker login -u AWS $DOCKER_REPO --password-stdin
+          docker build \
+            -t $DOCKER_REPO/test-retailer-website:$CIRCLE_BUILD_NUM \
+            -t $DOCKER_REPO/test-retailer-website:$GIT_HASH \
+            -t $DOCKER_REPO/test-retailer-website:$CIRCLE_BRANCH \
+            .
+      - run: docker push $DOCKER_REPO/test-retailer-website:$CIRCLE_BUILD_NUM
+      - run: docker push $DOCKER_REPO/test-retailer-website:$GIT_HASH
+      - run: docker push $DOCKER_REPO/test-retailer-website:$CIRCLE_BRANCH
+  deploy:
+    working_directory: /devops
+    docker:
+      - image: $DOCKER_REPO/devops:$DEVOPS_BRANCH
+    steps:
+      - run: bash kubeconfig.sh
+      - run: |
+          helm upgrade test-retailer-website-$STACK ./charts/test-retailer-website \
+            --install \
+            --wait \
+            --timeout 900 \
+            --namespace $STACK \
+            --set-string image.tag=${CIRCLE_SHA1:0:7} \
+            -f ./charts/test-retailer-website/$STACK.yaml \
+            --tls
+
+workflows:
+  version: 2
+  test_retailer_website_workflow:
+    jobs:
+      - build
+          context: artifactory
+      - publish:
+          context:
+            - artifactory
+            - qa01
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
+      - deploy:
+          name: DeployQA01
+          context: qa01
+          requires:
+            - publish
+          filters:
+            branches:
+              only: master

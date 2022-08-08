@@ -1,0 +1,11 @@
+# Ignore all files
+*
+
+# Except the files needed to run the application
+!package.json
+!node_modules
+!dist
+!public
+
+# Note: the certificates folder is empty for CI/CD builds. This is only used when running locally
+!certificates/*.pem
