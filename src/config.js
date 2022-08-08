@@ -26,7 +26,6 @@ const env = process.env;
 const environment = env.NODE_ENV || 'dev';
 
 if (environment !== 'dev') {
-    config.narvar.authToken = env.RETAILER_AUTH;
     config.merchant.identificationCertFile = env.MERCHANT_IDENTIFICATION_CERT_FILE;
     config.applePay.paymentProcessingCertFile = env.PAYMENT_PROCESSING_CERT_FILE;
     config.ssl.certFile = env.SSL_CERT_FILE;
@@ -34,7 +33,7 @@ if (environment !== 'dev') {
     config.ssl.port = 443;
 }
 
-if (environment === 'prod') {
+if (environment.startsWith('prod')) {
     config.narvar.ordersApiUrl = 'https://ws.narvar.com/v1/orders';
 }
 

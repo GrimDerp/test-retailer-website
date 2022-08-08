@@ -57,7 +57,7 @@ jobs:
             --timeout 900 \
             --namespace $STACK \
             --set-string image.tag=${CIRCLE_SHA1:0:7} \
-            -f ./charts/test-retailer-website/$STACK.yaml \
+            -f ./helm3-charts/test-retailer-website/$STACK.yaml \
             --tls
 
 workflows:
