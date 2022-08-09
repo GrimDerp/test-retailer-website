@@ -27,8 +27,8 @@ const env = process.env;
 const environment = env.NODE_ENV || 'dev';
 
 if (environment !== 'dev') {
-    config.merchant.identificationCertFile = env.MERCHANT_IDENTIFICATION_CERT_FILE;
-    config.applePay.paymentProcessingCertFile = env.PAYMENT_PROCESSING_CERT_FILE;
+    config.merchant.identificationCertFile = env.MERCHANT_IDENTIFICATION_CERT_FILE || config.merchant.identificationCertFile;
+    config.applePay.paymentProcessingCertFile = env.PAYMENT_PROCESSING_CERT_FILE || config.applePay.paymentProcessingCertFile;
     config.ssl.enabled = false;
 }
 
