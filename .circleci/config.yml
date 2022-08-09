@@ -57,10 +57,9 @@ workflows:
   test_retailer_website_workflow:
     jobs:
       - build:
-          context: artifactory
       - publish:
           context:
-            - artifactory
+            - build
             - qa01
           requires:
             - build
