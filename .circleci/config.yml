@@ -2,7 +2,8 @@ aliases:
   - &attach_workspace
     attach_workspace:
       at: ~/
-
+orbs:
+  devops: narvar/devops@0.0.22
 version: 2.1
 jobs:
   build:
