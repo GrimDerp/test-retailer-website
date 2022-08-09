@@ -2,6 +2,7 @@
 
 const express = require('express');
 const bodyParser = require('body-parser');
+const http = require('http');
 const https = require('https');
 const request = require('request');
 const { v4: uuid } = require('uuid');
@@ -35,8 +36,8 @@ app.post('/proxyApplePay', function (req, res) {
 	// We must add our ApplePay account informartion to the request
 	const options = {
 		url: req.body.url,
-		cert: certificates.merchantIdentityCert,
-		key: certificates.merchantIdentityCert,
+		cert: certificates.getMerchantIdentityCert(),
+		key: certificates.getMerchantIdentityCert(),
 		method: 'post',
 		body: {
 			merchantIdentifier: config.merchant.identifier,
@@ -91,9 +92,15 @@ app.post('/completeOrder', function (req, res) {
 });
 
 logger.log('__dirname: ' + __dirname);
-var options = {
-	index: 'index.html',
-	key: certificates.sslKey,
-	cert: certificates.sslCert
+const options = {
+	index: 'index.html'
 };
-https.createServer(options, app).listen(config.ssl.port);
+if (config.ssl.enabled) {
+	options.key = certificates.getSSLKey();
+	options.cert = certificates.getSSLCert();
+	logger.log('Serving requests on port ' + config.port + ' with SSL');
+	https.createServer(options, app).listen(config.port);
+} else {
+	logger.log('Serving requests on port ' + config.port + ' no SSL');
+	http.createServer(options, app).listen(config.port);
+}

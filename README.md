@@ -108,6 +108,15 @@ and only works when running on Apple hardware.
 * From Safari on an iOS 10 device with ApplePay support
 * From Safari on a Mac running macOS Sierra that [supports Handoff](https://support.apple.com/kb/PH25169?locale=en_US) (2012 and later hardware)
 
+## Running in other environments
+You can run the application with another environment's config by setting the `NODE_ENV`
+environment variable before starting the application, for example
+
+```shell
+export NODE_ENV=qa01
+npm run dev
+```
+
 ## Running in Docker locally
 1. Build the application into the dist folder: `npm run build`
 2. Build a new docker image: `docker build -t test-retailer-website .`

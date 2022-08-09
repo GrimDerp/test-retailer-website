@@ -2,6 +2,7 @@
 
 const config = {
     storeName: 'Narvar Test Store',
+    port: 4567,
     narvar: {
         ordersApiUrl: 'https://ws.narvar.qa/v1/orders',
         authToken: '<base64 encoded retailer credentials>',
@@ -16,9 +17,9 @@ const config = {
         paymentProcessingCertFile: './certificates/paymentProcessing.pem',
     },
     ssl: {
+        enabled: true,
         certFile: './certificates/ssl_cert.pem',
         keyFile: './certificates/ssl_key.pem',
-        port: 4567
     }
 };
 
@@ -28,9 +29,7 @@ const environment = env.NODE_ENV || 'dev';
 if (environment !== 'dev') {
     config.merchant.identificationCertFile = env.MERCHANT_IDENTIFICATION_CERT_FILE;
     config.applePay.paymentProcessingCertFile = env.PAYMENT_PROCESSING_CERT_FILE;
-    config.ssl.certFile = env.SSL_CERT_FILE;
-    config.ssl.keyFile = env.SSL_KEY_FILE;
-    config.ssl.port = 443;
+    config.ssl.enabled = false;
 }
 
 if (environment.startsWith('prod')) {

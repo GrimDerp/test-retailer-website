@@ -2,19 +2,45 @@
 
 const fs = require('fs');
 const config = require('./config');
+const logger = require('./logger');
 
-try {
-	fs.accessSync(config.merchant.identificationCertFile);
-	fs.accessSync(config.applePay.paymentProcessingCertFile);
-	fs.accessSync(config.ssl.certFile);
-	fs.accessSync(config.ssl.keyFile);
-} catch (e) {
-	throw new Error('Some certificate files are missing.\n' + e);
+const loadCert = function(name, fileName) {
+	try {
+		fs.accessSync(fileName);
+	} catch (e) {
+		logger.error(e);
+		logger.error('No access to ' + name + ' in ' + fileName);
+		return null;
+	}
+	const cert = fs.readFileSync(fileName);
+	logger.log('Loaded ' + name + ' from ' + fileName);
+	return cert;
 }
 
+var merchantIdentityCert = undefined;
+var paymentProcessingCert = undefined;
+var sslKey = undefined;
+var sslCert = undefined;
+
 module.exports = {
-    merchantIdentityCert: fs.readFileSync(config.merchant.identificationCertFile),
-    paymentProcessingCert: fs.readFileSync(config.applePay.paymentProcessingCertFile),
-    sslKey: fs.readFileSync(config.ssl.keyFile),
-    sslCert: fs.readFileSync(config.ssl.certFile),
+    getMerchantIdentityCert: function(){
+		if (merchantIdentityCert === undefined)
+			merchantIdentityCert = loadCert('merchant identification certificate', config.merchant.identificationCertFile);
+		return merchantIdentityCert;
+	},
+    getPaymentProcessingCert: function(){
+		if (paymentProcessingCert === undefined)
+			paymentProcessingCert = loadCert('payment processing certificate', config.applePay.paymentProcessingCertFile);
+		return paymentProcessingCert;
+	},
+    getSSLKey: function(){
+		if (sslKey === undefined)
+			sslKey = loadCert('SSL private key', config.ssl.keyFile);
+		return sslKey;
+	},
+    getSSLCert: function(){
+		if (sslCert === undefined)
+			sslCert = loadCert('SSL certificate', config.ssl.certFile);
+		return sslCert;
+	},
 }
