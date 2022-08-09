@@ -56,7 +56,7 @@ workflows:
   version: 2
   test_retailer_website_workflow:
     jobs:
-      - build:
+      - build
       - publish:
           context:
             - build
