@@ -29,36 +29,27 @@ jobs:
             - ./test-retailer-website/dist
             - ./test-retailer-website/public
   publish:
-    docker:
-      - image: $DOCKER_REPO/alpine-node:12.1.0-master
+    executor: devops/master-gcp
     working_directory: ~/test-retailer-website
     steps:
       - *attach_workspace
       - setup_remote_docker
-      - run: echo 'export GIT_HASH=$(eval echo ${CIRCLE_SHA1:0:7})' >> $BASH_ENV
-      - run: |
-          aws ecr get-login --no-include-email --region $AWS_REGION | awk '{printf $6}' | docker login -u AWS $DOCKER_REPO --password-stdin
-          docker build \
-            -t $DOCKER_REPO/test-retailer-website:$CIRCLE_BUILD_NUM \
-            -t $DOCKER_REPO/test-retailer-website:$GIT_HASH \
-            -t $DOCKER_REPO/test-retailer-website:$CIRCLE_BRANCH \
-            .
-      - run: docker push $DOCKER_REPO/test-retailer-website:$GIT_HASH
+      - devops/gcp-docker-login
+      - devops/artifactory-export:
+          build-provider: GCP
+      - devops/docker-build:
+          image-name: test-retailer-website
+      - devops/docker-push:
+          image-name: test-retailer-website
   deploy:
-    working_directory: /devops
-    docker:
-      - image: $DOCKER_REPO/devops:$DEVOPS_BRANCH
+    executor: devops/deployment-master-aws
     steps:
-      - run: bash kubeconfig.sh
-      - run: |
-          helm upgrade test-retailer-website-$STACK ./charts/test-retailer-website \
-            --install \
-            --wait \
-            --timeout 900 \
-            --namespace $STACK \
-            --set-string image.tag=${CIRCLE_SHA1:0:7} \
-            -f ./helm3-charts/test-retailer-website/$STACK.yaml \
-            --tls
+      - devops/deployment-login
+      - devops/deployment-repos
+      - devops/deployment-helm3:
+          deployment-name: test-retailer-website
+          namespace: data-services
+          timeout: 2m
 
 workflows:
   version: 2
