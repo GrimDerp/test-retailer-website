@@ -50,7 +50,7 @@ jobs:
       - devops/deployment-helm3:
           deployment-name: test-retailer-website
           namespace: data-services
-          timeout: 2m
+          timeout: 5m
 
 workflows:
   version: 2
