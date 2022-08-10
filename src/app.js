@@ -5,12 +5,12 @@ const bodyParser = require('body-parser');
 const http = require('http');
 const https = require('https');
 const request = require('request');
-const { v4: uuid } = require('uuid');
 
 const logger = require('./logger');
 const config = require('./config');
 const ordersApi = require('./ordersApi');
 const certificates = require('./certificates');
+const orders = require('./orders');
 
 /**
 * Set up our server and static page hosting
@@ -67,10 +67,7 @@ app.post('/completeOrder', function (req, res) {
 	logger.log('/completeOrder ' + req.body.paymentRequest + " " + req.body.paymentToken);
 
 	// Construct an order from the shopping cart and payment information
-	const order = {
-		retailer: config.merchant.retailerMoniker,
-		orderNumber: uuid.v4()
-	}
+	const order = orders.create(req.body);
 
 	// Post the order to Narvar and get order details for Apple Wallet integration
 	return ordersApi.getOrderDetails(order)
@@ -90,6 +87,12 @@ app.post('/completeOrder', function (req, res) {
 			res.status(500).send({});
 	});
 });
+
+/**
+ * The load balancer will get this endpoint to know when the
+ * website is ready to serve requests
+ */
+app.get('/health_check', (req, res) => { res.send('ok') })
 
 logger.log('__dirname: ' + __dirname);
 const options = {
