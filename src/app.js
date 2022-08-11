@@ -11,7 +11,6 @@ const config = require('./config');
 const ordersApi = require('./ordersApi');
 const certificates = require('./certificates');
 const orders = require('./orders');
-const { json } = require('body-parser');
 
 /**
 * Set up our server and static page hosting
@@ -66,29 +65,63 @@ app.post('/proxyApplePay', function (req, res) {
  */
 app.post('/completeOrder', function (req, res) {
 	logger.log('/completeOrder');
-	logger.log(JSON.stringify(req.body));
+	logger.log(req.body);
+
+	const paymentRequest = req.body.paymentRequest;
+	const payment = req.body.payment;
+	const shippingContact = payment.shippingContact;
+
+	var locale = 'en-US';
+	const acceptLanguage = req.headers['accept-language'];
+	if (acceptLanguage) {
+		const pairs = acceptLanguage.split(',');
+		if (pairs.length > 0) locale = pairs[0].split(';')[0];
+	}
 
 	// Construct an order from the shopping cart and payment information
-	const order = orders.create(req.body);
+	const order = orders.create(paymentRequest.currencyCode, locale);
+	orders.setCustomer(order, {
+		address: {
+			street_1: 'Street address', //shippingContact.addressLines[0]
+			street_2: 'Unit number', // shippingContact.addressLines[1]
+			city: shippingContact.locality,
+			state: shippingContact.administrativeArea,
+			zip: shippingContact.postalCode,
+			country: shippingContact.countryCode
+		},
+		email: shippingContact.emailAddress,
+		first_name: shippingContact.givenName,
+		last_name: shippingContact.familyName,
+		phone: '',
+	});
+	orders.addItem(order, {
+		sku: 'ABC123',
+		name: 'Snazzy Skis',
+		quantity: 1,
+		unit_price: 8.99,
+		item_image: 'https://test-retailer.narvar.qa/images/skis.png',
+		item_url: 'https://test-retailer.narvar.qa/',
+		fulfillment_status: 'NOT_SHIPPED'
+	});
 
 	// Post the order to Narvar and get order details for Apple Wallet integration
 	return ordersApi.postOrder(order)
-	.then(() => {
-		ordersApi.getOrderDetails(order)
-		.then((orderDetails) => {
-			res.status(200).send({ orderDetails });
+		.then(() => {
+			ordersApi.getOrderDetails(order)
+				.then((orderDetails) => {
+					res.status(200).send({ orderDetails });
+				})
+				.catch((err) => {
+					logger.error('Error getting order details');
+					logger.log(err);
+					res.status(500).send(err);
+				});
 		})
 		.catch((err) => {
-			logger.error('Error getting order details');
-			logger.log(JSON.stringify(err));
+			logger.error('Error posting the order');
+			logger.log(err);
 			res.status(500).send(err);
 		});
-	})
-	.catch((err) => {
-		logger.error('Error posting the order');
-		logger.log(JSON.stringify(err));
-		res.status(500).send(err);
-	});
 });
 
 /**

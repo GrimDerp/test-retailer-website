@@ -23,7 +23,7 @@ function callApplePay(url) {
         });
       };
       xhr.setRequestHeader("Content-Type", "application/json");
-      xhr.send(JSON.stringify({url: url}));
+      xhr.send(JSON.stringify({ url: url }));
     });
 }
 
@@ -44,15 +44,14 @@ function processPayment(paymentRequest, payment) {
 
     // Call a payment provider with payment details and
     // finalize charge this order to the customer's card
-    const paymentToken = "P_" + uuidv4();
 
     // If payment was success, then create an order from the cart contents
-    return createOrder(paymentRequest, paymentToken);
+    return createOrder(paymentRequest, payment);
 }
 
 // Following a successful response from the payment provider, the credit card
 // has been changed and it is time to convert the cart into an order.
-function createOrder(paymentRequest, paymentToken) {
+function createOrder(paymentRequest, payment) {
     console.log("createOrder");
     return new Promise(function (resolve, reject) {
         var xhr = new XMLHttpRequest();
@@ -85,10 +84,7 @@ function createOrder(paymentRequest, paymentToken) {
         };
         xhr.responseType = 'json';
         xhr.setRequestHeader("Content-Type", "application/json");
-        xhr.send(JSON.stringify({ 
-            paymentRequest: paymentRequest,
-            paymentToken: paymentToken,
-        }));
+        xhr.send(JSON.stringify({ paymentRequest, payment }));
     });
 }
 

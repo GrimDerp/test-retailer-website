@@ -20,24 +20,16 @@ const getOptions = function(override) {
 	return Object.assign(base, override);
 }
 
-const makeRequest = function(options) {
+const makeRequest = function(options, onsuccess) {
 	return new Promise((resolve, reject) => {
 		logger.log('Posting to Orders API ' + options.url);
 		request(options, function (err, response, body) {
 			if (err) {
-				logger.error('Error posting order to the orders API');
-				logger.log(JSON.stringify(err));
+				logger.error('Error posting to the orders API');
+				logger.log(err);
 				reject(err);
 			} else {
-				if (body.status === 200) {
-					logger.log('Success posting order to Orders API');
-					logger.log(JSON.stringify(body));
-					resolve(body);
-				} else {
-					logger.error('Error status in response from Orders API');
-					logger.log(JSON.stringify(body));
-					reject(body);
-				}
+				onsuccess(resolve, reject, body);
 			}
 		});	
 	});
@@ -46,18 +38,40 @@ const makeRequest = function(options) {
 module.exports = {
 
 	postOrder: function(order) {
+		logger.log('Posting order information to Narvar');
+		logger.log(JSON.stringify(order));
+
 		const options = getOptions({ 
 			url: config.narvar.ordersApiUrl,
 			body: order
 		});
-		return makeRequest(options);
+
+		return makeRequest(options, function(resolve, reject, body){
+			if (body.status === 'SUCCESS') {
+				logger.log('Success posting order to Orders API');
+				logger.log(body);
+				resolve(body);
+			} else {
+				logger.error('Error status in response from Orders API');
+				logger.log(body);
+				reject(body);
+			}
+		});
 	},
 
 	getOrderDetails: function(order) {
+		const orderNumber = order.order_info.order_number;
+		logger.log('Getting order details from Narvar for ' + orderNumber);
+
 		const options = getOptions({ 
-			url: config.narvar.ordersApiUrl + '/apple-wallet/' + order.orderNumber,
+			url: config.narvar.ordersApiUrl + '/apple-wallet/' + orderNumber,
 			body: order
 		});
-		return makeRequest(options);
+
+		return makeRequest(options, function(resolve, reject, body){
+			logger.log('Success getting order details from Orders API');
+			logger.log(body);
+			resolve(body);
+		});
 	}
 }
