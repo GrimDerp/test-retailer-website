@@ -23,14 +23,28 @@ const create = function(currency, locale) {
 
 const setCustomer = function(order, customer) {
     order.order_info.customer = Object.assign(order.order_info.customer, customer);
+    return module.exports;
+}
+
+const setBilling = function(order, billing) {
+    order.order_info.billing = Object.assign(order.order_info.billing, billing);
+    return module.exports;
+}
+
+const setAttributes = function(order, attributes) {
+    order.order_info.attributes = Object.assign(order.order_info.attributes, attributes);
+    return module.exports;
 }
 
 const addItem = function(order, item) {
     order.order_info.order_items.push(item);
+    return module.exports;
 }
 
 module.exports = {
     create,
     setCustomer,
+    setBilling,
+    setAttributes,
     addItem
 }

@@ -38,8 +38,10 @@ const makeRequest = function(options, onsuccess) {
 module.exports = {
 
 	postOrder: function(order) {
-		logger.log('Posting order information to Narvar');
-		logger.log(JSON.stringify(order));
+		if (config.featureFlags.logPaymentDetails) {
+			logger.log('Posting order information to Narvar');
+			logger.log(JSON.stringify(order));
+		}
 
 		const options = getOptions({ 
 			url: config.narvar.ordersApiUrl,
@@ -48,8 +50,10 @@ module.exports = {
 
 		return makeRequest(options, function(resolve, reject, body){
 			if (body.status === 'SUCCESS') {
-				logger.log('Success posting order to Orders API');
-				logger.log(body);
+				if (config.featureFlags.logSuccess) {
+					logger.log('Success posting order to Orders API');
+					logger.log(body);
+				}
 				resolve(body);
 			} else {
 				logger.error('Error status in response from Orders API');
@@ -69,8 +73,10 @@ module.exports = {
 		});
 
 		return makeRequest(options, function(resolve, reject, body){
-			logger.log('Success getting order details from Orders API');
-			logger.log(body);
+			if (config.featureFlags.logSuccess) {
+				logger.log('Success getting order details from Orders API');
+				logger.log(body);
+			}
 			resolve(body);
 		});
 	}

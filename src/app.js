@@ -10,7 +10,7 @@ const logger = require('./logger');
 const config = require('./config');
 const ordersApi = require('./ordersApi');
 const certificates = require('./certificates');
-const orders = require('./orders');
+const orderBuilder = require('./orderBuilder');
 
 /**
 * Set up our server and static page hosting
@@ -28,16 +28,17 @@ app.use(bodyParser.json());
 * to Apple servers.
 */
 app.post('/proxyApplePay', function (req, res) {
-
-	// The request body should contain the URL of the ApplePay service to call
 	if (!req.body.url) return res.sendStatus(400);
+	
+	if (config.featureFlags.logPaymentDetails) {
+		logger.log('/proxyApplePay ' + req.body.url);
+	}
 
-	// We must add our ApplePay account informartion to the request
 	const options = {
 		url: req.body.url,
 		cert: certificates.getMerchantIdentityCert(),
 		key: certificates.getMerchantIdentityCert(),
-		method: 'post',
+		method: 'POST',
 		body: {
 			merchantIdentifier: config.merchant.identifier,
 			domainName: config.merchant.domain,
@@ -46,8 +47,6 @@ app.post('/proxyApplePay', function (req, res) {
 		json: true
 	};
 
-	// Send the request to the Apple Pay server and return the response to the client
-	logger.log('/proxyApplePay ' + req.body.url);
 	request(options, function (err, response, body) {
 		if (err) {
 			logger.log('Error calling Apple Pay servers');
@@ -64,12 +63,20 @@ app.post('/proxyApplePay', function (req, res) {
  * return the order details required for Apple Wallet integration
  */
 app.post('/completeOrder', function (req, res) {
-	logger.log('/completeOrder');
-	logger.log(req.body);
-
 	const paymentRequest = req.body.paymentRequest;
 	const payment = req.body.payment;
 	const shippingContact = payment.shippingContact;
+
+	if (config.featureFlags.logPaymentDetails) {
+		logger.log('/completeOrder');
+		logger.log(req.body);
+
+		logger.log('payment.token.paymentMethod');
+		logger.log(payment.token.paymentMethod);
+
+		logger.log('paymentRequest.lineItems');
+		logger.log(paymentRequest.lineItems);
+	}
 
 	var locale = 'en-US';
 	const acceptLanguage = req.headers['accept-language'];
@@ -79,25 +86,42 @@ app.post('/completeOrder', function (req, res) {
 	}
 
 	// Construct an order from the shopping cart and payment information
-	const order = orders.create(paymentRequest.currencyCode, locale);
-	const orderNumber = order.order_info.order_number;
+	const order = orderBuilder.create(paymentRequest.currencyCode, locale);
 
-	orders.setCustomer(order, {
-		address: {
-			street_1: shippingContact.addressLines[0] || 'Street',
-			street_2: shippingContact.addressLines[1] || '',
-			city: shippingContact.locality,
-			state: shippingContact.administrativeArea,
-			zip: shippingContact.postalCode,
-			country: shippingContact.countryCode
-		},
+	// Construct values that appear in multiple places
+	const orderNumber = order.order_info.order_number;
+	const address = {
+		street_1: shippingContact.addressLines[0] || 'Street',
+		street_2: shippingContact.addressLines[1] || '',
+		city: shippingContact.locality,
+		state: shippingContact.administrativeArea,
+		zip: shippingContact.postalCode,
+		country: shippingContact.countryCode
+	};
+	const amount = parseFloat(paymentRequest.total.amount);
+
+	// Populate Narvar order information
+	orderBuilder.setCustomer(order, {
+		address,
 		email: shippingContact.emailAddress,
 		first_name: shippingContact.givenName,
 		last_name: shippingContact.familyName,
 		phone: shippingContact.phoneNumber,
-	});
-	
-	orders.addItem(order, {
+	})
+	.setBilling(order, {
+		billed_to: address,
+		amount,
+		tax_rate: 0,
+		tax_amount: 0,
+		shipping_handling: parseFloat(paymentRequest.lineItems[0].amount),
+		payments: [{
+			card: payment.token.paymentMethod.displayName,
+			merchant: payment.token.paymentMethod.network,
+			is_gift_card: false,
+			amount,
+		}]
+	})
+	.addItem(order, {
 		sku: 'ABC123',
 		name: 'Snazzy Skis',
 		quantity: 1,

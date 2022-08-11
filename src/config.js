@@ -21,6 +21,10 @@ const config = {
         enabled: true,
         certFile: './certificates/ssl_cert.pem',
         keyFile: './certificates/ssl_key.pem',
+    },
+    featureFlags: {
+        logPaymentDetails: false,
+        logSuccess: true
     }
 };
 
@@ -31,10 +35,13 @@ if (environment !== 'dev') {
     config.merchant.identificationCertFile = env.MERCHANT_IDENTIFICATION_CERT_FILE || config.merchant.identificationCertFile;
     config.applePay.paymentProcessingCertFile = env.PAYMENT_PROCESSING_CERT_FILE || config.applePay.paymentProcessingCertFile;
     config.ssl.enabled = false;
+    config.featureFlags.logPaymentDetails = false;
+    config.featureFlags.logSuccess = false;
 }
 
 if (environment.startsWith('prod')) {
     config.narvar.ordersApiUrl = 'https://ws.narvar.com/v1/orders';
+    config.featureFlags.logPaymentDetails = false; // DO NOT CHANGE THIS TO TRUE
 }
 
 module.exports = config;
