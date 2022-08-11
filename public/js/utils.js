@@ -39,8 +39,7 @@ function uuidv4() {
 // the payment a;ways succeeds without charging the card
 function processPayment(paymentRequest, payment) {
     console.log("processPayment");
-    console.log(applePay);
-    console.log(applePaySession);
+    console.log(paymentRequest);
     console.log(payment);
 
     // Call a payment provider with payment details and

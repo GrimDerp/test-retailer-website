@@ -11,6 +11,7 @@ const config = require('./config');
 const ordersApi = require('./ordersApi');
 const certificates = require('./certificates');
 const orders = require('./orders');
+const { json } = require('body-parser');
 
 /**
 * Set up our server and static page hosting
@@ -31,7 +32,6 @@ app.post('/proxyApplePay', function (req, res) {
 
 	// The request body should contain the URL of the ApplePay service to call
 	if (!req.body.url) return res.sendStatus(400);
-	logger.log('/proxyApplePay ' + req.body.url);
 
 	// We must add our ApplePay account informartion to the request
 	const options = {
@@ -48,10 +48,11 @@ app.post('/proxyApplePay', function (req, res) {
 	};
 
 	// Send the request to the Apple Pay server and return the response to the client
+	logger.log('/proxyApplePay ' + req.body.url);
 	request(options, function (err, response, body) {
 		if (err) {
 			logger.log('Error calling Apple Pay servers');
-			logger.error(err);
+			logger.log(JSON.stringify(err));
 			res.status(500).send(body);
 		}
 		res.send(body);
@@ -64,7 +65,8 @@ app.post('/proxyApplePay', function (req, res) {
  * return the order details required for Apple Wallet integration
  */
 app.post('/completeOrder', function (req, res) {
-	logger.log('/completeOrder ' + req.body.paymentRequest + " " + req.body.paymentToken);
+	logger.log('/completeOrder');
+	logger.log(JSON.stringify(req.body));
 
 	// Construct an order from the shopping cart and payment information
 	const order = orders.create(req.body);
@@ -77,14 +79,16 @@ app.post('/completeOrder', function (req, res) {
 				res.status(200).send({ orderDetails });
 			})
 			.catch((err) => {
-				logger.error(err + ' posting the order');
-				res.status(500).send({});
+				logger.error('Error posting the order');
+				logger.log(JSON.stringify(err));
+				res.status(500).send(err);
 			});
 	
 		})
 		.catch((err) => {
-			logger.error(err + ' getting order details');
-			res.status(500).send({});
+			logger.error('Error getting order details');
+			logger.log(JSON.stringify(err));
+			res.status(500).send(err);
 	});
 });
 

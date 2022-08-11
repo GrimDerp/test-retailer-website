@@ -39,29 +39,35 @@ function applePayButtonClicked() {
 		currencyCode: 'USD',
 		shippingMethods: [
 			{
-				label: 'Free Shipping',
-				amount: '0.00',
+				label: 'Standard Shipping',
+				amount: '5.00',
 				identifier: 'free',
 				detail: 'Delivers in five business days',
 			},
 			{
 				label: 'Express Shipping',
-				amount: '5.00',
+				amount: '15.00',
 				identifier: 'express',
 				detail: 'Delivers in two business days',
+			},
+			{
+				label: 'Pick Up In Store',
+				amount: '0.00',
+				identifier: 'bopis',
+				detail: 'Pick it up today from your nearest store',
 			},
 		],
 
 		lineItems: [
 			{
-				label: 'Shipping',
-				amount: '0.00',
+				label: 'Standard Shipping',
+				amount: '5.00',
 			}
 		],
 
 		total: {
-			label: 'Apple Pay Example',
-			amount: '8.99',
+			label: 'Test Order',
+			amount: '13.99',
 		},
 
 		supportedNetworks:[ 'amex', 'discover', 'masterCard', 'visa'],
@@ -76,19 +82,22 @@ function applePayButtonClicked() {
 	session.onvalidatemerchant = (event) => {
 		console.log("session.onvalidatemerchant");
 		callApplePay(event.validationURL).then(function(response) {
-  			console.log(response);
+  			console.log('Merchant identifier: ' + response.merchantIdentifier);
+  			console.log('Domain name: ' + response.domainName);
+  			console.log('Display name: ' + response.displayName);
   			session.completeMerchantValidation(response);
 		});
 	};
 
 	session.onshippingmethodselected = (event) => {
 		console.log("session.onshippingmethodselected");
-		const shippingCost = event.shippingMethod.identifier === 'free' ? '0.00' : '5.00';
-		const totalCost = event.shippingMethod.identifier === 'free' ? '8.99' : '13.99';
+		const shippingMethod = event.shippingMethod.label;
+		const shippingCost = event.shippingMethod.amount;
+		const totalCost = (8.99 + parseFloat(shippingCost)).toFixed(2);
 
 		const lineItems = [
 			{
-				label: 'Shipping',
+				label: shippingMethod,
 				amount: shippingCost,
 			},
 		];
@@ -109,7 +118,7 @@ function applePayButtonClicked() {
 		// Send encrypted payment information for processing.
 		// The private key associated with Payment Processing Certificate 
 		// must be used to decrypt the response on the server-side
-		processPayment(session.paymentRequest, event.payment)
+		processPayment(paymentRequest, event.payment)
 			.then((result) => {
 				// In this case the payment was successful and the order was placed.
 				// result.orderDetails contains information on how to retrieve the
