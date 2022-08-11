@@ -21,9 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function showApplePayButton() {
 	HTMLCollection.prototype[Symbol.iterator] = Array.prototype[Symbol.iterator];
-	const buttons = document.getElementsByClassName("apple-pay-button");
+	const buttons = document.getElementsByClassName('apple-pay-button');
 	for (let button of buttons) {
-		button.className += " visible";
+		button.className += ' visible';
 	}
 }
 
@@ -33,7 +33,7 @@ function showApplePayButton() {
 * Triggered when the Apple Pay button is pressed
 */
 function applePayButtonClicked() {
-	console.log("applePayButtonClicked");
+	console.log('applePayButtonClicked');
 	const paymentRequest = {
 		countryCode: 'US',
 		currencyCode: 'USD',
@@ -80,7 +80,7 @@ function applePayButtonClicked() {
 	const session = new ApplePaySession(applePayVersion, paymentRequest);
 	
 	session.onvalidatemerchant = (event) => {
-		console.log("session.onvalidatemerchant");
+		console.log('session.onvalidatemerchant');
 		callApplePay(event.validationURL).then(function(response) {
   			console.log('Merchant identifier: ' + response.merchantIdentifier);
   			console.log('Domain name: ' + response.domainName);
@@ -90,7 +90,7 @@ function applePayButtonClicked() {
 	};
 
 	session.onshippingmethodselected = (event) => {
-		console.log("session.onshippingmethodselected");
+		console.log('session.onshippingmethodselected');
 		const shippingMethod = event.shippingMethod.label;
 		const shippingCost = event.shippingMethod.amount;
 		const totalCost = (8.99 + parseFloat(shippingCost)).toFixed(2);
@@ -113,7 +113,7 @@ function applePayButtonClicked() {
 	// This function is called by Apple Pay when the user chooses a payment 
 	// method and authorizes the amount to be charged
 	session.onpaymentauthorized = (event) => {
-		console.log("session.onpaymentauthorized");
+		console.log('session.onpaymentauthorized');
 
 		// Send encrypted payment information for processing.
 		// The private key associated with Payment Processing Certificate 
@@ -129,7 +129,7 @@ function applePayButtonClicked() {
 					status: ApplePaySession.STATUS_SUCCESS,
 					orderDetails: result.orderDetails,
 				});
-                window.location.href = "/success.html";
+                window.location.href = '/success.html?order=' + result.orderNumber;
 			})
 			.catch((result) => {
 				if (result.errors) {

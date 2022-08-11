@@ -80,13 +80,15 @@ app.post('/completeOrder', function (req, res) {
 
 	// Construct an order from the shopping cart and payment information
 	const order = orders.create(paymentRequest.currencyCode, locale);
+	const orderNumber = order.order_info.order_number;
+
 	orders.setCustomer(order, {
 		address: {
-			street_1: 'Street address', //shippingContact.addressLines[0] redacted for privacy
-			street_2: 'Unit number', // shippingContact.addressLines[1] redacted for privacy
+			street_1: shippingContact.addressLines[0] || 'Street',
+			street_2: shippingContact.addressLines[1] || '',
 			city: shippingContact.locality,
 			state: shippingContact.administrativeArea,
-			zip: 'Postal code', // shippingContact.postalCode redacted for privacy
+			zip: shippingContact.postalCode,
 			country: shippingContact.countryCode
 		},
 		email: shippingContact.emailAddress,
@@ -94,6 +96,7 @@ app.post('/completeOrder', function (req, res) {
 		last_name: shippingContact.familyName,
 		phone: shippingContact.phoneNumber,
 	});
+	
 	orders.addItem(order, {
 		sku: 'ABC123',
 		name: 'Snazzy Skis',
@@ -109,7 +112,7 @@ app.post('/completeOrder', function (req, res) {
 		.then(() => {
 			ordersApi.getOrderDetails(order)
 				.then((orderDetails) => {
-					res.status(200).send({ orderDetails });
+					res.send({ orderNumber, orderDetails });
 				})
 				.catch((err) => {
 					logger.error('Error getting order details');
