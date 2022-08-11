@@ -45,6 +45,10 @@ The file must be called `merchantIdentityCert.pem` and must be in the `./certifi
 openssl pkcs12 -in merchantIdentityCert.p12 -out merchantIdentityCert.pem -nodes -clcerts
 ```
 
+```shell
+curl https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer -o AppleWWDRCAG3.cer 
+```
+
 ### Get a Payment Processing Certificate
 The Payment Processing Certificate is used by ApplePay to encrypt responses that it returns 
 to your website. Your website must use the private key associated with the certificate to

@@ -14,7 +14,8 @@ const config = {
         identificationCertFile: './certificates/merchantIdentity.pem'
     },
     applePay: {
-        paymentProcessingCertFile: './certificates/paymentProcessing.pem',
+        wwdrCertFile: './certificates/AppleWWDRCAG3.cer',
+        paymentProcessingCertFile: './certificates/paymentProcessing.pem'
     },
     ssl: {
         enabled: true,

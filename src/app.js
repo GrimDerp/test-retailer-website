@@ -52,8 +52,8 @@ app.post('/proxyApplePay', function (req, res) {
 	request(options, function (err, response, body) {
 		if (err) {
 			logger.log('Error calling Apple Pay servers');
-			logger.log(JSON.stringify(err));
-			res.status(500).send(body);
+			logger.log(err);
+			res.status(500);
 		}
 		res.send(body);
 	});

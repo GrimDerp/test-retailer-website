@@ -54,7 +54,6 @@ module.exports = {
 	},
 
 	getOrderDetails: function(order) {
-		const base64OrderNumber = Buffer.from(order.orderNumber).toString('base64');
 		const options = getOptions({ 
 			url: config.narvar.ordersApiUrl + '/apple-wallet/' + order.orderNumber,
 			body: order

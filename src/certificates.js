@@ -18,6 +18,7 @@ const loadCert = function(name, fileName) {
 }
 
 var merchantIdentityCert = undefined;
+var appleWWDRCert = undefined;
 var paymentProcessingCert = undefined;
 var sslKey = undefined;
 var sslCert = undefined;
@@ -27,6 +28,11 @@ module.exports = {
 		if (merchantIdentityCert === undefined)
 			merchantIdentityCert = loadCert('merchant identification certificate', config.merchant.identificationCertFile);
 		return merchantIdentityCert;
+	},
+    getAppleWWDRCert: function(){
+		if (appleWWDRCert === undefined)
+			appleWWDRCert = loadCert('Apple WWDR certificate', config.applePay.wwdrCertFile);
+		return appleWWDRCert;
 	},
     getPaymentProcessingCert: function(){
 		if (paymentProcessingCert === undefined)
