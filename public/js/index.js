@@ -73,7 +73,7 @@ function applePayButtonClicked() {
 		supportedNetworks:[ 'amex', 'discover', 'masterCard', 'visa'],
 		merchantCapabilities: [ 'supports3DS' ],
 
-		requiredShippingContactFields: [ 'postalAddress', 'email' ],
+		requiredShippingContactFields: [ 'postalAddress', 'phone', 'email' ],
 	};
 
 	const applePayVersion = 1;

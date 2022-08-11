@@ -82,17 +82,17 @@ app.post('/completeOrder', function (req, res) {
 	const order = orders.create(paymentRequest.currencyCode, locale);
 	orders.setCustomer(order, {
 		address: {
-			street_1: 'Street address', //shippingContact.addressLines[0]
-			street_2: 'Unit number', // shippingContact.addressLines[1]
+			street_1: 'Street address', //shippingContact.addressLines[0] redacted for privacy
+			street_2: 'Unit number', // shippingContact.addressLines[1] redacted for privacy
 			city: shippingContact.locality,
 			state: shippingContact.administrativeArea,
-			zip: shippingContact.postalCode,
+			zip: 'Postal code', // shippingContact.postalCode redacted for privacy
 			country: shippingContact.countryCode
 		},
 		email: shippingContact.emailAddress,
 		first_name: shippingContact.givenName,
 		last_name: shippingContact.familyName,
-		phone: '',
+		phone: shippingContact.phoneNumber,
 	});
 	orders.addItem(order, {
 		sku: 'ABC123',
