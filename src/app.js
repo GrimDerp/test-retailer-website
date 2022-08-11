@@ -72,23 +72,22 @@ app.post('/completeOrder', function (req, res) {
 	const order = orders.create(req.body);
 
 	// Post the order to Narvar and get order details for Apple Wallet integration
-	return ordersApi.getOrderDetails(order)
+	return ordersApi.postOrder(order)
+	.then(() => {
+		ordersApi.getOrderDetails(order)
 		.then((orderDetails) => {
-			ordersApi.postOrder(order)
-			.then(() => {
-				res.status(200).send({ orderDetails });
-			})
-			.catch((err) => {
-				logger.error('Error posting the order');
-				logger.log(JSON.stringify(err));
-				res.status(500).send(err);
-			});
-	
+			res.status(200).send({ orderDetails });
 		})
 		.catch((err) => {
 			logger.error('Error getting order details');
 			logger.log(JSON.stringify(err));
 			res.status(500).send(err);
+		});
+	})
+	.catch((err) => {
+		logger.error('Error posting the order');
+		logger.log(JSON.stringify(err));
+		res.status(500).send(err);
 	});
 });
 

@@ -4,7 +4,7 @@ const config = {
     storeName: 'Narvar Test Store',
     port: 4567,
     narvar: {
-        ordersApiUrl: 'https://ws.narvar.qa/v1/orders',
+        ordersApiUrl: 'https://ws.narvar.qa/api/v1/orders',
         authToken: Buffer.from('a9220678931f4226a3fb81015189a8f9:3ce11e0bb61541f9a6e25fd629aca4f3').toString('base64'),
     },
     merchant: {
