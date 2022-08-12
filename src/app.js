@@ -87,9 +87,9 @@ app.post('/completeOrder', function (req, res) {
 
 	// Construct an order from the shopping cart and payment information
 	const order = orderBuilder.create(paymentRequest.currencyCode, locale);
+	const orderNumber = order.order_info.order_number;
 
 	// Construct values that appear in multiple places
-	const orderNumber = order.order_info.order_number;
 	const address = {
 		street_1: shippingContact.addressLines[0] || 'Street',
 		street_2: shippingContact.addressLines[1] || '',
@@ -98,22 +98,24 @@ app.post('/completeOrder', function (req, res) {
 		zip: shippingContact.postalCode,
 		country: shippingContact.countryCode
 	};
-	const amount = parseFloat(paymentRequest.total.amount);
-
-	// Populate Narvar order information
-	orderBuilder.setCustomer(order, {
+	const customer = {
 		address,
 		email: shippingContact.emailAddress,
 		first_name: shippingContact.givenName,
 		last_name: shippingContact.familyName,
 		phone: shippingContact.phoneNumber,
-	})
+	};
+	const amount = parseFloat(paymentRequest.total.amount);
+	const shippingAmount = parseFloat(paymentRequest.lineItems[0].amount);
+
+	// Populate Narvar order information
+	orderBuilder.setCustomer(order, customer)
 	.setBilling(order, {
 		billed_to: address,
 		amount,
 		tax_rate: 0,
 		tax_amount: 0,
-		shipping_handling: parseFloat(paymentRequest.lineItems[0].amount),
+		shipping_handling: shippingAmount,
 		payments: [{
 			card: payment.token.paymentMethod.displayName,
 			merchant: payment.token.paymentMethod.network,
@@ -129,14 +131,23 @@ app.post('/completeOrder', function (req, res) {
 		item_image: 'https://test-retailer.narvar.qa/images/skis.png',
 		item_url: 'https://test-retailer.narvar.qa/',
 		fulfillment_status: 'NOT_SHIPPED'
+	})
+	.addShipment(order, {
+		shipped_to: customer,
+		ship_total: shippingAmount
+	}, {
+		sku: 'ABC123',
+		quantity: 1
 	});
+
+	const trackingNumber = order.order_info.shipments[0].tracking_number;
 
 	// Post the order to Narvar and get order details for Apple Wallet integration
 	return ordersApi.postOrder(order)
 		.then(() => {
 			ordersApi.getOrderDetails(order)
 				.then((orderDetails) => {
-					res.send({ orderNumber, orderDetails });
+					res.send({ orderNumber, trackingNumber, orderDetails });
 				})
 				.catch((err) => {
 					logger.error('Error getting order details');

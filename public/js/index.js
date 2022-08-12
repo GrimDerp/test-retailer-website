@@ -129,7 +129,7 @@ function applePayButtonClicked() {
 					status: ApplePaySession.STATUS_SUCCESS,
 					orderDetails: result.orderDetails,
 				});
-                window.location.href = '/success.html?order=' + result.orderNumber;
+                window.location.href = '/success.html?o=' + result.orderNumber + '&t=' + result.trackingNumber;
 			})
 			.catch((result) => {
 				if (result.errors) {

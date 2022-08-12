@@ -23,7 +23,7 @@ const config = {
         keyFile: './certificates/ssl_key.pem',
     },
     featureFlags: {
-        logPaymentDetails: false,
+        logPaymentDetails: true,
         logSuccess: true
     }
 };

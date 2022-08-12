@@ -67,6 +67,7 @@ function createOrder(paymentRequest, payment) {
                     resolve({
                         status: this.status,
                         orderNumber: this.response.orderNumber,
+                        trackingNumber: this.response.trackingNumber,
                         orderDetails: this.response.orderDetails
                     });
                 }

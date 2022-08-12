@@ -1,12 +1,11 @@
 'use strict';
 
 const { v4: uuid } = require('uuid');
-const config = require('./config');
 
 const create = function(currency, locale) {
 	const orderInfo = { 
         order_info: {
-		    order_number: uuid.v4(),
+		    order_number: 'test_retailer_order_' + uuid.v4(),
             order_date: new Date().toISOString(),
             currency_code: currency,
             chekcout_locale: locale,
@@ -41,10 +40,28 @@ const addItem = function(order, item) {
     return module.exports;
 }
 
+const addShipment = function(order, shipment, item) {
+    const now = new Date().getTime();
+    order.order_info.shipments.push(
+        Object.assign({}, shipment, {
+            tracking_number: 'test_retailer_tracking_' + uuid.v4(),
+            carrier: 'dhl',
+            ship_source: 'DC',
+            ship_date: new Date(now + 3 * 60 * 60 * 1000).toISOString(),
+            promise_date: new Date(now + 3 * 24 * 60 * 60 * 1000).toISOString(),
+            items_info: [{
+                quantity: item.quantity,
+                sku: item.sku
+            }]
+    }));
+    return module.exports;
+}
+
 module.exports = {
     create,
     setCustomer,
     setBilling,
     setAttributes,
-    addItem
+    addItem,
+    addShipment
 }

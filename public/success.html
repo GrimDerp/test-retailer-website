@@ -1,27 +1,57 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<link rel="manifest" href="manifest.json">
-		<link rel="stylesheet" type="text/css" href="css/style.css">
-		<title>Narvar Test Retailer</title>
-	</head>
 
-	<body>
-		<div class="apple-pay">
-			<h2>Payment Success </h2>
-			<p>
-				The test order was successful.
-			</p>
-			<p>
-				<b>This was just a test, no payment was made on your card.</b>
-			</p>
-			<p>
-				<a href="/">
-					Make another test order
-				</a>
-			</p>
-		</div>
-	</body>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="manifest" href="manifest.json">
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+	<title>Narvar Test Retailer</title>
+	<script src="https://unpkg.com/vue@3"></script>
+</head>
+
+<body>
+	<div class="apple-pay">
+		<h2>Payment Success </h2>
+		<p>
+			The test order was successful.
+		</p>
+		<p>
+			<b>This was just a test, no payment was made on your card.</b>
+		</p>
+		<p>
+			<a href="/">
+				Make another test order
+			</a>
+		</p>
+	</div>
+
+	<div id="tracking" class="apple-pay">
+		<h2>Order information</h2>
+		<h3>Order number</h3><p>{{orderNumber}}<button @click="copyOrderNumber">Copy</button></p>
+		<h3>Tracking number</h3><p>{{trackingNumber}}<button @click="copyTrackingNumber">Copy</button></p>
+	</div>
+
+	<script>
+		const { createApp } = Vue
+		createApp({
+			data() {
+				const urlParams = new URLSearchParams(window.location.search);
+				return {
+					orderNumber: urlParams.get('o'),
+					trackingNumber: urlParams.get('t')
+				}
+			},
+			methods: {
+				toClipboard(text) {
+					navigator.clipboard.writeText(this.orderNumber);
+					alert(text + ' copied to clipboard');
+				},
+				copyOrderNumber() { this.toClipboard(this.orderNumber); },
+				copyTrackingNumber() { this.toClipboard(this.trackingNumber); }
+			}
+		}).mount('#tracking');
+	</script>
+</body>
+
 </html>
