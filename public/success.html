@@ -28,8 +28,12 @@
 
 	<div id="tracking" class="apple-pay">
 		<h2>Order information</h2>
-		<h3>Order number</h3><p>{{orderNumber}}<button @click="copyOrderNumber">Copy</button></p>
-		<h3>Tracking number</h3><p>{{trackingNumber}}<button @click="copyTrackingNumber">Copy</button></p>
+		<div v-if="orderNumber">
+			<h3>Order number</h3><p>{{orderNumber}}<button @click="copyOrderNumber">Copy</button></p>
+		</div>
+		<div v-if="trackingNumber">
+			<h3>Tracking number</h3><p>{{trackingNumber}}<button @click="copyTrackingNumber">Copy</button></p>
+		</div>
 	</div>
 
 	<script>

@@ -66,6 +66,7 @@ app.post('/completeOrder', function (req, res) {
 	const paymentRequest = req.body.paymentRequest;
 	const payment = req.body.payment;
 	const shippingContact = payment.shippingContact;
+	const shippingMethod = paymentRequest.lineItems[0];
 
 	if (config.featureFlags.logPaymentDetails) {
 		logger.log('/completeOrder');
@@ -88,6 +89,7 @@ app.post('/completeOrder', function (req, res) {
 	// Construct an order from the shopping cart and payment information
 	const order = orderBuilder.create(paymentRequest.currencyCode, locale);
 	const orderNumber = order.order_info.order_number;
+	const isBopis = shippingMethod.label == 'Pick Up In Store';
 
 	// Construct values that appear in multiple places
 	const address = {
@@ -106,7 +108,7 @@ app.post('/completeOrder', function (req, res) {
 		phone: shippingContact.phoneNumber,
 	};
 	const amount = parseFloat(paymentRequest.total.amount);
-	const shippingAmount = parseFloat(paymentRequest.lineItems[0].amount);
+	const shippingAmount = parseFloat(shippingMethod.amount);
 
 	// Populate Narvar order information
 	orderBuilder.setCustomer(order, customer)
@@ -122,25 +124,43 @@ app.post('/completeOrder', function (req, res) {
 			is_gift_card: false,
 			amount,
 		}]
-	})
-	.addItem(order, {
+	});
+
+	let trackingNumber = '';
+	const item = {
 		sku: 'ABC123',
 		name: 'Snazzy Skis',
 		quantity: 1,
 		unit_price: 8.99,
 		item_image: 'https://test-retailer.narvar.qa/images/skis.png',
-		item_url: 'https://test-retailer.narvar.qa/',
-		fulfillment_status: 'NOT_SHIPPED'
-	})
-	.addShipment(order, {
-		shipped_to: customer,
-		ship_total: shippingAmount
-	}, {
-		sku: 'ABC123',
-		quantity: 1
-	});
+		item_url: 'https://test-retailer.narvar.qa/'
+	};
 
-	const trackingNumber = order.order_info.shipments[0].tracking_number;
+	if (isBopis) {
+		item.fulfilment_type = 'BOPIS';
+		item.fulfillment_status= 'NOT_PICKED_UP';
+		orderBuilder
+			.addItem(order, item)
+			.addPickup(order, {
+				type: 'BOPIS'
+			}, {
+				sku: 'ABC123',
+				quantity: 1
+			});
+	} else {
+		item.fulfillment_status= 'NOT_SHIPPED';
+		orderBuilder
+			.addItem(order, item)
+			.addShipment(order, {
+				shipped_to: customer,
+				ship_total: shippingAmount
+			}, {
+				sku: 'ABC123',
+				quantity: 1
+			});
+
+		trackingNumber = order.order_info.shipments[0].tracking_number;
+	}
 
 	// Post the order to Narvar and get order details for Apple Wallet integration
 	return ordersApi.postOrder(order)

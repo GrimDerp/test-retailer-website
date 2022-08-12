@@ -107,6 +107,9 @@ function applePayButtonClicked() {
 			amount: totalCost,
 		};
 
+		paymentRequest.total = total;
+		paymentRequest.lineItems = lineItems;
+
 		session.completeShippingMethodSelection(ApplePaySession.STATUS_SUCCESS, total, lineItems);
 	};
 
