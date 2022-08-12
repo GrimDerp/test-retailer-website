@@ -11,6 +11,8 @@ const config = require('./config');
 const ordersApi = require('./ordersApi');
 const certificates = require('./certificates');
 const orderBuilder = require('./orderBuilder');
+const carrierDataBuilder = require('./carrierDataBuilder');
+const carrierDataIngestion = require('./carrierDataIngestion');
 
 /**
 * Set up our server and static page hosting
@@ -180,6 +182,30 @@ app.post('/completeOrder', function (req, res) {
 			logger.log(err);
 			res.status(500).send(err);
 		});
+});
+
+app.post('/carrierEvent/packaged', function (req, res) {
+	const trackingNumber = req.body.trackingNumber;
+	const carrierData = carrierDataBuilder.create(trackingNumber, 'PK', 'Packaged', '200');
+	return carrierDataIngestion.carrierEvent(carrierData);
+});
+
+app.post('/carrierEvent/pickedUp', function (req, res) {
+	const trackingNumber = req.body.trackingNumber;
+	const carrierData = carrierDataBuilder.create(trackingNumber, 'PU', 'Picked up', '300');
+	return carrierDataIngestion.carrierEvent(carrierData);
+});
+
+app.post('/carrierEvent/outForDelivery', function (req, res) {
+	const trackingNumber = req.body.trackingNumber;
+	const carrierData = carrierDataBuilder.create(trackingNumber, 'LM', 'Out for delivery', '400');
+	return carrierDataIngestion.carrierEvent(carrierData);
+});
+
+app.post('/carrierEvent/delivered', function (req, res) {
+	const trackingNumber = req.body.trackingNumber;
+	const carrierData = carrierDataBuilder.create(trackingNumber, 'DL', 'Delivered', '500');
+	return carrierDataIngestion.carrierEvent(carrierData);
 });
 
 /**

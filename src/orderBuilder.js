@@ -1,6 +1,7 @@
 'use strict';
 
 const { v4: uuid } = require('uuid');
+const config = require('./config');
 
 const create = function(currency, locale) {
 	const orderInfo = { 
@@ -46,7 +47,7 @@ const addShipment = function(order, shipment, item) {
     order.order_info.shipments.push(
         Object.assign({
             tracking_number: 'test_retailer_tracking_' + uuid.v4(),
-            carrier: 'dhl',
+            carrier: config.carrier.carrierMoniker,
             ship_source: 'DC',
             ship_date: new Date(now + 3 * 60 * 60 * 1000).toISOString(),
             promise_date: new Date(now + 3 * 24 * 60 * 60 * 1000).toISOString(),

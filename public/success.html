@@ -6,8 +6,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="manifest" href="manifest.json">
 	<link rel="stylesheet" type="text/css" href="css/style.css">
-	<title>Narvar Test Retailer</title>
-	<script src="https://unpkg.com/vue@3"></script>
+	<script src="js/utils.js"></script>
+	<title>Order Placed</title>
 </head>
 
 <body>
@@ -29,33 +29,23 @@
 	<div id="tracking" class="apple-pay">
 		<h2>Order information</h2>
 		<div v-if="orderNumber">
-			<h3>Order number</h3><p>{{orderNumber}}<button @click="copyOrderNumber">Copy</button></p>
+			<h3>Order number</h3>
+			<p>{{orderNumber}}<button @click="copyOrderNumber">Copy</button></p>
 		</div>
 		<div v-if="trackingNumber">
-			<h3>Tracking number</h3><p>{{trackingNumber}}<button @click="copyTrackingNumber">Copy</button></p>
+			<h3>Tracking number</h3>
+			<p>{{trackingNumber}}<button @click="copyTrackingNumber">Copy</button></p>
+			<p>
+				<button @click="trackingEvent('packaged')">Packaged</button>
+				<button @click="trackingEvent('pickedUp')">Picked up</button>
+				<button @click="trackingEvent('outForDelivery')">Last Mile</button>
+				<button @click="trackingEvent('delivered')">Delivered</button>
+			</p>
 		</div>
 	</div>
 
-	<script>
-		const { createApp } = Vue
-		createApp({
-			data() {
-				const urlParams = new URLSearchParams(window.location.search);
-				return {
-					orderNumber: urlParams.get('o'),
-					trackingNumber: urlParams.get('t')
-				}
-			},
-			methods: {
-				toClipboard(text) {
-					navigator.clipboard.writeText(this.orderNumber);
-					alert(text + ' copied to clipboard');
-				},
-				copyOrderNumber() { this.toClipboard(this.orderNumber); },
-				copyTrackingNumber() { this.toClipboard(this.trackingNumber); }
-			}
-		}).mount('#tracking');
-	</script>
+	<script src="https://unpkg.com/vue@3"></script>
+	<script src="js/success.js"></script>
 </body>
 
 </html>

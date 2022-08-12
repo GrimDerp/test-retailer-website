@@ -90,3 +90,31 @@ function createOrder(paymentRequest, payment) {
     });
 }
 
+function sendTrackingEvent(trackingNumber, eventType) {
+  console.log("sendTrackingEvent " + trackingNumber + " " + eventType);
+  return new Promise(function (resolve, reject) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', '/carrierEvent/' + eventType);
+      xhr.onload = function () {
+          if (this.status >= 200 && this.status < 300) {
+              resolve({ 
+                status: this.status
+              });
+          } else {
+              reject({
+                  status: this.status,
+                  statusText: xhr.statusText
+              });
+          }
+      };
+      xhr.onerror = function () {
+          reject({
+              status: this.status,
+              statusText: xhr.statusText
+          });
+      };
+      xhr.responseType = 'json';
+      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.send(JSON.stringify({ trackingNumber }));
+  });
+}

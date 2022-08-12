@@ -5,6 +5,7 @@ const config = {
     port: 4567,
     narvar: {
         ordersApiUrl: 'https://ws.narvar.qa/api/v1/orders',
+        cdiUrl: 'https://ws.narvar.qa/api/v1/carrier-data',
         authToken: Buffer.from('a9220678931f4226a3fb81015189a8f9:3ce11e0bb61541f9a6e25fd629aca4f3').toString('base64'),
     },
     merchant: {
@@ -12,6 +13,9 @@ const config = {
         identifier: 'merchant.pass.com.narvar.walletintegration.test',
         domain: 'test-retailer.narvar.qa',
         identificationCertFile: './certificates/merchantIdentity.pem'
+    },
+    carrier: {
+        carrierMoniker: 'dhl'
     },
     applePay: {
         wwdrCertFile: './certificates/AppleWWDRCAG3.cer',
