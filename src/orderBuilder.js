@@ -3,10 +3,15 @@
 const { v4: uuid } = require('uuid');
 const config = require('./config');
 
+const SEC_TO_MS = 1000;
+const MIN_TO_MS = 60 * SEC_TO_MS;
+const HOURS_TO_MS = 60 * MIN_TO_MS;
+const DAY_TO_MS = 24 * HOURS_TO_MS;
+
 const create = function(currency, locale) {
 	const orderInfo = { 
         order_info: {
-		    order_number: 'test_retailer_order_' + uuid.v4(),
+		    order_number: config.merchant.orderNumberPrefix + uuid.v4(),
             order_date: new Date().toISOString(),
             currency_code: currency,
             chekcout_locale: locale,
@@ -46,11 +51,11 @@ const addShipment = function(order, shipment, item) {
     const now = new Date().getTime();
     order.order_info.shipments.push(
         Object.assign({
-            tracking_number: 'test_retailer_tracking_' + uuid.v4(),
+            tracking_number: config.carrier.trackingNumberPrefix + uuid.v4(),
             carrier: config.carrier.carrierMoniker,
             ship_source: 'DC',
-            ship_date: new Date(now + 3 * 60 * 60 * 1000).toISOString(),
-            promise_date: new Date(now + 3 * 24 * 60 * 60 * 1000).toISOString(),
+            ship_date: new Date(now + 3 * HOURS_TO_MS).toISOString(),
+            promise_date: new Date(now + 3 * DAY_TO_MS).toISOString(),
             items_info: [{
                 quantity: item.quantity,
                 sku: item.sku
@@ -63,15 +68,15 @@ const addPickup = function(order, pickup, item) {
     const now = new Date().getTime();
     order.order_info.pickups.push(
         Object.assign({
-            id: 'test_retailer_pickup_' + uuid.v4(),
+            id: config.merchant.pickupIdPrefix + uuid.v4(),
             type: 'BOPIS',
             status: {
                 code: 'NOT_PICKED_UP',
                 message: "Items are being prepared",
                 date: new Date(now).toISOString()
             },
-            eta: new Date(now + 30 * 60 * 60 * 1000).toISOString(),
-            pickup_by_date: new Date(now + 3 * 24 * 60 * 60 * 1000).toISOString(),
+            eta: new Date(now + 30 * MIN_TO_MS).toISOString(),
+            pickup_by_date: new Date(now + 3 * DAY_TO_MS).toISOString(),
             items_info: [{
                 quantity: item.quantity,
                 sku: item.sku

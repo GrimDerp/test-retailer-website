@@ -31,7 +31,7 @@ app.use(bodyParser.json());
 */
 app.post('/proxyApplePay', function (req, res) {
 	if (!req.body.url) return res.sendStatus(400);
-	
+
 	if (config.featureFlags.logPaymentDetails) {
 		logger.log('/proxyApplePay ' + req.body.url);
 	}
@@ -114,19 +114,19 @@ app.post('/completeOrder', function (req, res) {
 
 	// Populate Narvar order information
 	orderBuilder.setCustomer(order, customer)
-	.setBilling(order, {
-		billed_to: address,
-		amount,
-		tax_rate: 0,
-		tax_amount: 0,
-		shipping_handling: shippingAmount,
-		payments: [{
-			card: payment.token.paymentMethod.displayName,
-			merchant: payment.token.paymentMethod.network,
-			is_gift_card: false,
+		.setBilling(order, {
+			billed_to: address,
 			amount,
-		}]
-	});
+			tax_rate: 0,
+			tax_amount: 0,
+			shipping_handling: shippingAmount,
+			payments: [{
+				card: payment.token.paymentMethod.displayName,
+				merchant: payment.token.paymentMethod.network,
+				is_gift_card: false,
+				amount,
+			}]
+		});
 
 	let trackingNumber = '';
 	const item = {
@@ -140,7 +140,7 @@ app.post('/completeOrder', function (req, res) {
 
 	if (isBopis) {
 		item.fulfilment_type = 'BOPIS';
-		item.fulfillment_status= 'NOT_PICKED_UP';
+		item.fulfillment_status = 'NOT_PICKED_UP';
 		orderBuilder
 			.addItem(order, item)
 			.addPickup(order, {
@@ -150,7 +150,7 @@ app.post('/completeOrder', function (req, res) {
 				quantity: 1
 			});
 	} else {
-		item.fulfillment_status= 'NOT_SHIPPED';
+		item.fulfillment_status = 'NOT_SHIPPED';
 		orderBuilder
 			.addItem(order, item)
 			.addShipment(order, {
@@ -184,28 +184,29 @@ app.post('/completeOrder', function (req, res) {
 		});
 });
 
-app.post('/carrierEvent/packaged', function (req, res) {
+const trackingRequest = function(req, res, statusCode, statusDesc, narvarCode) {
 	const trackingNumber = req.body.trackingNumber;
-	const carrierData = carrierDataBuilder.create(trackingNumber, 'PK', 'Packaged', '200');
-	return carrierDataIngestion.carrierEvent(carrierData);
+	if (trackingNumber.startsWith(config.carrier.trackingNumberPrefix)) {
+		const carrierData = carrierDataBuilder.create(trackingNumber, statusCode, statusDesc, narvarCode);
+		return carrierDataIngestion.carrierEvent(carrierData);
+	}
+	res.sendStatus(400);
+}
+
+app.post('/carrierEvent/packaged', function (req, res) {
+	return trackingRequest(req, res, 'PK', 'Packaged', '200');
 });
 
 app.post('/carrierEvent/pickedUp', function (req, res) {
-	const trackingNumber = req.body.trackingNumber;
-	const carrierData = carrierDataBuilder.create(trackingNumber, 'PU', 'Picked up', '300');
-	return carrierDataIngestion.carrierEvent(carrierData);
+	return trackingRequest(req, res, 'PU', 'Picked up', '300');
 });
 
 app.post('/carrierEvent/outForDelivery', function (req, res) {
-	const trackingNumber = req.body.trackingNumber;
-	const carrierData = carrierDataBuilder.create(trackingNumber, 'LM', 'Out for delivery', '400');
-	return carrierDataIngestion.carrierEvent(carrierData);
+	return trackingRequest(req, res, 'LM', 'Out for delivery', '400');
 });
 
 app.post('/carrierEvent/delivered', function (req, res) {
-	const trackingNumber = req.body.trackingNumber;
-	const carrierData = carrierDataBuilder.create(trackingNumber, 'DL', 'Delivered', '500');
-	return carrierDataIngestion.carrierEvent(carrierData);
+	return trackingRequest(req, res, 'DL', 'Delivered', '500');
 });
 
 /**

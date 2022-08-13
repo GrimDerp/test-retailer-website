@@ -12,14 +12,17 @@ const config = {
         retailerMoniker: 'peninsular_interaction',
         identifier: 'merchant.pass.com.narvar.walletintegration.test',
         domain: 'test-retailer.narvar.qa',
-        identificationCertFile: './certificates/merchantIdentity.pem'
+        identificationCertFile: './certificates/merchantIdentity.pem',
+        orderNumberPrefix: 'test_retailer_order_',
+        pickupIdPrefix: 'test_retailer_pickup_',
     },
     carrier: {
-        carrierMoniker: 'dhl'
+        carrierMoniker: 'dhl',
+        trackingNumberPrefix: 'test_retailer_track_',
     },
     applePay: {
         wwdrCertFile: './certificates/AppleWWDRCAG3.cer',
-        paymentProcessingCertFile: './certificates/paymentProcessing.pem'
+        paymentProcessingCertFile: './certificates/paymentProcessing.pem',
     },
     ssl: {
         enabled: true,
@@ -28,7 +31,7 @@ const config = {
     },
     featureFlags: {
         logPaymentDetails: true,
-        logSuccess: true
+        logSuccess: true,
     }
 };
 
