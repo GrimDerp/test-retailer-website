@@ -129,6 +129,8 @@ app.post('/completeOrder', function (req, res) {
 		});
 
 	let trackingNumber = '';
+	let pickupNumber = '';
+
 	const item = {
 		sku: 'ABC123',
 		name: 'Snazzy Skis',
@@ -149,6 +151,7 @@ app.post('/completeOrder', function (req, res) {
 				sku: 'ABC123',
 				quantity: 1
 			});
+		pickupNumber = order.order_info.pickups[0].id;
 	} else {
 		item.fulfillment_status = 'NOT_SHIPPED';
 		orderBuilder
@@ -169,7 +172,7 @@ app.post('/completeOrder', function (req, res) {
 		.then(() => {
 			ordersApi.getOrderDetails(order)
 				.then((orderDetails) => {
-					res.send({ orderNumber, trackingNumber, orderDetails });
+					res.send({ orderNumber, trackingNumber, pickupNumber, orderDetails });
 				})
 				.catch((err) => {
 					logger.error('Error getting order details');
@@ -184,11 +187,11 @@ app.post('/completeOrder', function (req, res) {
 		});
 });
 
-const trackingRequest = function(req, res, statusCode, statusDesc, narvarCode) {
+const trackingRequest = function (req, res, statusCode, statusDesc, narvarCode) {
 	const trackingNumber = req.body.trackingNumber;
 	if (trackingNumber.startsWith(config.carrier.trackingNumberPrefix)) {
 		const carrierData = carrierDataBuilder.create(trackingNumber, statusCode, statusDesc, narvarCode);
-		return carrierDataIngestion.carrierEvent(carrierData);
+		return carrierDataIngestion.carrierEvent(carrierData).then(() => { res.sendStatus(200); });
 	}
 	res.sendStatus(400);
 }

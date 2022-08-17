@@ -68,6 +68,7 @@ function createOrder(paymentRequest, payment) {
                         status: this.status,
                         orderNumber: this.response.orderNumber,
                         trackingNumber: this.response.trackingNumber,
+                        pickupNumber: this.response.pickupNumber,
                         orderDetails: this.response.orderDetails
                     });
                 }

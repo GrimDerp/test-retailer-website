@@ -29,17 +29,21 @@
 	<div id="tracking" class="apple-pay">
 		<h2>Order information</h2>
 		<div v-if="orderNumber">
-			<h3>Order number</h3>
+			<h3>Order {{orderStatusText}}</h3>
 			<p>{{orderNumber}}<button @click="copyOrderNumber">Copy</button></p>
+		</div>
+		<div v-if="pickupNumber">
+			<h3>Pickup number</h3>
+			<p>{{pickupNumber}}<button @click="copyPickupNumber">Copy</button></p>
 		</div>
 		<div v-if="trackingNumber">
 			<h3>Tracking number</h3>
 			<p>{{trackingNumber}}<button @click="copyTrackingNumber">Copy</button></p>
 			<p>
-				<button @click="trackingEvent('packaged')">Packaged</button>
-				<button @click="trackingEvent('pickedUp')">Picked up</button>
-				<button @click="trackingEvent('outForDelivery')">Last Mile</button>
-				<button @click="trackingEvent('delivered')">Delivered</button>
+				<button @click="trackingEvent(200)" :disabled="busy || orderStatus >= 200">Packaged</button>
+				<button @click="trackingEvent(300)" :disabled="busy || orderStatus >= 300">Picked up</button>
+				<button @click="trackingEvent(400)" :disabled="busy || orderStatus >= 400">Last Mile</button>
+				<button @click="trackingEvent(500)" :disabled="busy || orderStatus >= 500">Delivered</button>
 			</p>
 		</div>
 	</div>
