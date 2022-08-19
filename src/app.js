@@ -264,8 +264,9 @@ app.post('/updatePickup/:eventType', function (req, res) {
 	const item = {
 		sku: 'ABC123',
 		quantity: 1,
-		fulfillment_status: eventType,
-		fulfilment_type: "BOPIS",
+		name: 'Snazzy Skis',
+		fulfillment_status: eventMetadata.code,
+		fulfillment_type: "BOPIS",
 	};
 	
 	const pickup = {
