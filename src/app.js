@@ -13,8 +13,6 @@ const certificates = require('./certificates');
 const orderBuilder = require('./orderBuilder');
 const carrierDataBuilder = require('./carrierDataBuilder');
 const carrierDataIngestion = require('./carrierDataIngestion');
-const { send } = require('process');
-const { carrierEvent } = require('./carrierDataIngestion');
 
 /**
 * Set up our server and static page hosting
@@ -83,7 +81,7 @@ app.post('/completeOrder', function (req, res) {
 		logger.log(paymentRequest.lineItems);
 	}
 
-	var locale = 'en-US';
+	var locale = 'en_US';
 	const acceptLanguage = req.headers['accept-language'];
 	if (acceptLanguage) {
 		const pairs = acceptLanguage.split(',');
@@ -288,6 +286,47 @@ function badRequest(res, message) {
 		message,
 	});
 	return;
+}
+
+if (config.environment === "dev") {
+	app.get('/sampleOrder', function (req, res) {
+		res.send({
+			"paymentRequest": {
+				"currencyCode": "USD",
+				"lineItems": [
+					{
+						"label": "Pick Up In Store",
+						"amount": 12.34
+					}
+				],
+				"total": {
+					"amount": 23.45
+		
+				}
+			},
+			"payment": {
+				"shippingContact": {
+					"addressLines": [
+						"111 Bridge St"
+					],
+					"locality": "Chattanooga",
+					"administrativeArea": "TN",
+					"postalCode": "37407",
+					"countryCode": "US",
+					"emailAddress": "foo@narvar.com",
+					"phoneNumber": "+14238182222",
+					"givenName": "Todd",
+					"familyName": "Hollandsworth"
+				},
+				"token": {
+					"paymentMethod": {
+						"displayName": "1234",
+						"network": "VISA"
+					}
+				}
+			}
+		});
+	});
 }
 
 /**

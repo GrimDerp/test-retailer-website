@@ -9,7 +9,7 @@ const config = {
         authToken: Buffer.from('a9220678931f4226a3fb81015189a8f9:3ce11e0bb61541f9a6e25fd629aca4f3').toString('base64'),
     },
     merchant: {
-        retailerMoniker: 'peninsular_interaction',
+        retailerMoniker: 'peninsula_interaction',
         identifier: 'merchant.pass.com.narvar.walletintegration.test',
         domain: 'test-retailer.narvar.qa',
         identificationCertFile: './certificates/merchantIdentity.pem',
@@ -37,6 +37,8 @@ const config = {
 
 const env = process.env;
 const environment = env.NODE_ENV || 'dev';
+
+config.environment = environment;
 
 if (environment !== 'dev') {
     config.merchant.identificationCertFile = env.MERCHANT_IDENTIFICATION_CERT_FILE || config.merchant.identificationCertFile;
