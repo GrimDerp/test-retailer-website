@@ -133,7 +133,7 @@ function applePayButtonClicked() {
 					orderDetails: result.orderDetails,
 				});
                 window.location.href = '/success.html?o=' + result.orderNumber + 
-					'&t=' + result.trackingNumber + '&p=' + result.pickupId;
+					'&t=' + result.trackingNumber + '&p=' + result.pickupId + "&d=" + result.orderDate;
 			})
 			.catch((result) => {
 				if (result.errors) {

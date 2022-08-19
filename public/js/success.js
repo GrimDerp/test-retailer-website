@@ -5,6 +5,7 @@ createApp({
         const urlParams = new URLSearchParams(window.location.search);
         return {
             orderNumber: urlParams.get('o'),
+            orderDate: urlParams.get('d'),
             trackingNumber: urlParams.get('t'),
             pickupId: urlParams.get('p'),
             orderStatus: 100,
@@ -69,7 +70,7 @@ createApp({
             }
             if (eventType) {
                 this.busy = true;
-                sendPickupEvent(this.orderNumber, this.pickupId, eventType)
+                sendPickupEvent(this.orderNumber, this.orderDate, this.pickupId, eventType)
                     .then(() => {
                         this.orderStatus = newStatus;
                         this.orderStatusText = newStatusText;

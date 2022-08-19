@@ -90,6 +90,7 @@ app.post('/completeOrder', function (req, res) {
 
 	// Construct an order from the shopping cart and payment information
 	const order = orderBuilder.create(paymentRequest.currencyCode, locale);
+	const orderDate = order.order_info.order_date;
 	const orderNumber = order.order_info.order_number;
 	const isBopis = shippingMethod.label == 'Pick Up In Store';
 
@@ -172,7 +173,7 @@ app.post('/completeOrder', function (req, res) {
 		.then(() => {
 			ordersApi.getOrderDetails(order)
 				.then((orderDetails) => {
-					res.send({ orderNumber, trackingNumber, pickupId, orderDetails });
+					res.send({ orderNumber, trackingNumber, pickupId, orderDetails, orderDate });
 				})
 				.catch((err) => {
 					logger.error('Error getting order details');
@@ -251,14 +252,14 @@ app.post('/updatePickup/:eventType', function (req, res) {
 	if (!eventMetadata) {
 		return badRequest(res, "Invalid pickup event type");
 	}
-	const { pickupId, orderNumber } = req.body;
+	const { pickupId, orderNumber, orderDate } = req.body;
 	if (!pickupId || !pickupId.startsWith(config.merchant.pickupIdPrefix)) {
 		return badRequest(res, "Invalid pickup id");
 	}
 	if (!orderNumber || !orderNumber.startsWith(config.merchant.orderNumberPrefix)) {
 		return badRequest(res, "Invalid order number");
 	}
-	const order = orderBuilder.update(orderNumber);
+	const order = orderBuilder.update(orderNumber, orderDate);
 	const now = new Date().getTime();
 	const item = {
 		sku: 'ABC123',

@@ -67,6 +67,7 @@ function createOrder(paymentRequest, payment) {
                     resolve({
                         status: this.status,
                         orderNumber: this.response.orderNumber,
+                        orderDate: this.response.orderDate,
                         trackingNumber: this.response.trackingNumber,
                         pickupId: this.response.pickupId,
                         orderDetails: this.response.orderDetails
@@ -120,7 +121,7 @@ function sendTrackingEvent(trackingNumber, eventType) {
   });
 }
 
-function sendPickupEvent(orderNumber, pickupId, eventType) {
+function sendPickupEvent(orderNumber, orderDate, pickupId, eventType) {
     console.log("[sendPickupEvent] orderNumber: " + orderNumber + ", pickupId: " + pickupId + ", eventType: " + eventType);
     return new Promise(function (resolve, reject) {
         var xhr = new XMLHttpRequest();
@@ -145,6 +146,6 @@ function sendPickupEvent(orderNumber, pickupId, eventType) {
         };
         xhr.responseType = 'json';
         xhr.setRequestHeader("Content-Type", "application/json");
-        xhr.send(JSON.stringify({ pickupId, orderNumber }));
+        xhr.send(JSON.stringify({ pickupId, orderNumber, orderDate }));
     });
   }

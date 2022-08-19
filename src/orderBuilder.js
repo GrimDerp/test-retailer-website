@@ -8,10 +8,11 @@ const MIN_TO_MS = 60 * SEC_TO_MS;
 const HOURS_TO_MS = 60 * MIN_TO_MS;
 const DAY_TO_MS = 24 * HOURS_TO_MS;
 
-const update = function(orderNumber) {
+const update = function(orderNumber, orderDate) {
     return {
         order_info: {
             order_number: orderNumber,
+            order_date: orderDate,
         },
     };
 }
