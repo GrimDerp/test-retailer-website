@@ -63,6 +63,33 @@ module.exports = {
 		});
 	},
 
+	updateOrder: function(order, orderNumber) {
+		if (config.featureFlags.logPaymentDetails) {
+			logger.log('Updating Narvar order details for order ' + orderNumber);
+			logger.log(JSON.stringify(order));
+		}
+
+		const options = getOptions({ 
+			method: "PUT",
+			url: config.narvar.ordersApiUrl + "/" + orderNumber,
+			body: order
+		});
+
+		return makeRequest(options, function(resolve, reject, body){
+			if (body.status === 'SUCCESS') {
+				if (config.featureFlags.logSuccess) {
+					logger.log('Success updating Narvar order information');
+					logger.log(body);
+				}
+				resolve(body);
+			} else {
+				logger.error('Error status in response from Orders API');
+				logger.log(body);
+				reject(body);
+			}
+		});
+	},
+
 	getOrderDetails: function(order) {
 		const orderNumber = order.order_info.order_number;
 		logger.log('Getting order details from Narvar for ' + orderNumber);

@@ -68,7 +68,7 @@ function createOrder(paymentRequest, payment) {
                         status: this.status,
                         orderNumber: this.response.orderNumber,
                         trackingNumber: this.response.trackingNumber,
-                        pickupNumber: this.response.pickupNumber,
+                        pickupId: this.response.pickupId,
                         orderDetails: this.response.orderDetails
                     });
                 }
@@ -119,3 +119,32 @@ function sendTrackingEvent(trackingNumber, eventType) {
       xhr.send(JSON.stringify({ trackingNumber }));
   });
 }
+
+function sendPickupEvent(orderNumber, pickupId, eventType) {
+    console.log("[sendPickupEvent] orderNumber: " + orderNumber + ", pickupId: " + pickupId + ", eventType: " + eventType);
+    return new Promise(function (resolve, reject) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/updatePickup/' + eventType);
+        xhr.onload = function () {
+            if (this.status >= 200 && this.status < 300) {
+                resolve({ 
+                  status: this.status
+                });
+            } else {
+                reject({
+                    status: this.status,
+                    statusText: xhr.statusText
+                });
+            }
+        };
+        xhr.onerror = function () {
+            reject({
+                status: this.status,
+                statusText: xhr.statusText
+            });
+        };
+        xhr.responseType = 'json';
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.send(JSON.stringify({ pickupId, orderNumber }));
+    });
+  }

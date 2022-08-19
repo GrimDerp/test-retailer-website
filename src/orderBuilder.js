@@ -8,13 +8,21 @@ const MIN_TO_MS = 60 * SEC_TO_MS;
 const HOURS_TO_MS = 60 * MIN_TO_MS;
 const DAY_TO_MS = 24 * HOURS_TO_MS;
 
+const update = function(orderNumber) {
+    return {
+        order_info: {
+            order_number: orderNumber,
+        },
+    };
+}
+
 const create = function(currency, locale) {
 	const orderInfo = { 
         order_info: {
 		    order_number: config.merchant.orderNumberPrefix + uuid.v4(),
             order_date: new Date().toISOString(),
             currency_code: currency,
-            chekcout_locale: locale,
+            checkout_locale: locale,
             order_items: [],
             shipments: [],
             pickups: [],
@@ -123,6 +131,7 @@ const addPickup = function(order, pickup, item) {
 
 module.exports = {
     create,
+    update,
     setCustomer,
     setBilling,
     setAttributes,

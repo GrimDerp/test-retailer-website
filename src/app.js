@@ -13,6 +13,8 @@ const certificates = require('./certificates');
 const orderBuilder = require('./orderBuilder');
 const carrierDataBuilder = require('./carrierDataBuilder');
 const carrierDataIngestion = require('./carrierDataIngestion');
+const { send } = require('process');
+const { carrierEvent } = require('./carrierDataIngestion');
 
 /**
 * Set up our server and static page hosting
@@ -129,7 +131,7 @@ app.post('/completeOrder', function (req, res) {
 		});
 
 	let trackingNumber = '';
-	let pickupNumber = '';
+	let pickupId = '';
 
 	const item = {
 		sku: 'ABC123',
@@ -151,7 +153,7 @@ app.post('/completeOrder', function (req, res) {
 				sku: 'ABC123',
 				quantity: 1
 			});
-		pickupNumber = order.order_info.pickups[0].id;
+		pickupId = order.order_info.pickups[0].id;
 	} else {
 		item.fulfillment_status = 'NOT_SHIPPED';
 		orderBuilder
@@ -172,7 +174,7 @@ app.post('/completeOrder', function (req, res) {
 		.then(() => {
 			ordersApi.getOrderDetails(order)
 				.then((orderDetails) => {
-					res.send({ orderNumber, trackingNumber, pickupNumber, orderDetails });
+					res.send({ orderNumber, trackingNumber, pickupId, orderDetails });
 				})
 				.catch((err) => {
 					logger.error('Error getting order details');
@@ -187,30 +189,106 @@ app.post('/completeOrder', function (req, res) {
 		});
 });
 
-const trackingRequest = function (req, res, statusCode, statusDesc, narvarCode) {
-	const trackingNumber = req.body.trackingNumber;
-	if (trackingNumber.startsWith(config.carrier.trackingNumberPrefix)) {
-		const carrierData = carrierDataBuilder.create(trackingNumber, statusCode, statusDesc, narvarCode);
-		return carrierDataIngestion.carrierEvent(carrierData).then(() => { res.sendStatus(200); });
-	}
-	res.sendStatus(400);
+const carrierEventTypes = {
+	"packaged": {
+		carrierStatusCode: "PK",
+		message: "Packaged",
+		narvarStatusCode: "200",
+	},
+	"pickedUp": {
+		carrierStatusCode: "PU",
+		message: "Picked up",
+		narvarStatusCode: "300",
+	},
+	"outForDelivery": {
+		carrierStatusCode: "LM",
+		message: "Out for delivery",
+		narvarStatusCode: "400",
+	},
+	"delivered": {
+		carrierStatusCode: "DL",
+		message: "Delivered",
+		narvarStatusCode: "500",
+	},
 }
 
-app.post('/carrierEvent/packaged', function (req, res) {
-	return trackingRequest(req, res, 'PK', 'Packaged', '200');
+app.post('/carrierEvent/:carrierEventType', function (req, res) {
+	const trackingNumber = req.body.trackingNumber;
+	if (!trackingNumber.startsWith(config.carrier.trackingNumberPrefix)) {
+		return badRequest("Invalid tracking number");
+	}
+	const { carrierEventType } = req.params;
+	const typeMetadata = carrierEventTypes[carrierEventType];
+	if (!typeMetadata) {
+		return badRequest("Invalid carrier event type");
+	}
+	const {
+		carrierStatusCode,
+		message,
+		narvarStatusCode,
+	} = typeMetadata;
+	const carrierData = carrierDataBuilder.create(trackingNumber, carrierStatusCode, message, narvarStatusCode);
+	return carrierDataIngestion.carrierEvent(carrierData).then(() => { res.sendStatus(200); });
+	
 });
 
-app.post('/carrierEvent/pickedUp', function (req, res) {
-	return trackingRequest(req, res, 'PU', 'Picked up', '300');
+const pickupEvents = {
+	'PROCESSING': 'Your order is being processed',
+	'READY_FOR_PICKUP': 'Your order is ready for pickup at the store',
+	'PICKED_UP': 'Order picked up by customer',
+};
+
+app.post('/updatePickup/:eventType', function (req, res) {
+	let { eventType } = req.params;
+	if (!pickupEvents[eventType]) {
+		return badRequest(res, "Invalid pickup event type");
+	}
+	const { pickupId, orderNumber } = req.body;
+	if (!pickupId || !pickupId.startsWith(config.merchant.pickupIdPrefix)) {
+		return badRequest(res, "Invalid pickup id");
+	}
+	if (!orderNumber || !orderNumber.startsWith(config.merchant.orderNumberPrefix)) {
+		return badRequest(res, "Invalid order number");
+	}
+	const order = orderBuilder.update(orderNumber);
+	const now = new Date().getTime();
+	const item = {
+		sku: 'ABC123',
+		quantity: 1,
+		fulfillment_status: eventType,
+		fulfilment_type: "BOPIS",
+	};
+	const pickup = {
+		id: pickupId,
+		status: {
+			code: eventType,
+			message: pickupEvents[eventType],
+			date: new Date(now).toISOString(),
+		},
+		pickup_by_date: new Date(now + 3 * DAY_TO_MS).toISOString(),
+	};
+	if (eventType === "PROCESSING") {
+		pickup.eta = new Date(now + 30 * MIN_TO_MS).toISOString();
+	} else {
+		pickup.eta = new Date(now).toISOString();
+	}
+	orderBuilder
+		.addItem(order, item)
+		.addPickup(order, pickup, {
+			sku: 'ABC123',
+			quantity: 1
+		});
+	return ordersApi.updateOrder(order, orderNumber).then(() => { res.sendStatus(200); });
 });
 
-app.post('/carrierEvent/outForDelivery', function (req, res) {
-	return trackingRequest(req, res, 'LM', 'Out for delivery', '400');
-});
 
-app.post('/carrierEvent/delivered', function (req, res) {
-	return trackingRequest(req, res, 'DL', 'Delivered', '500');
-});
+function badRequest(res, message) {
+	res.status(400).send({
+		status: "Bad Request",
+		message,
+	});
+	return;
+}
 
 /**
  * The load balancer will get this endpoint to know when the

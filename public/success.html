@@ -32,9 +32,13 @@
 			<h3>Order {{orderStatusText}}</h3>
 			<p>{{orderNumber}}<button @click="copyOrderNumber">Copy</button></p>
 		</div>
-		<div v-if="pickupNumber">
+		<div v-if="pickupId">
 			<h3>Pickup number</h3>
-			<p>{{pickupNumber}}<button @click="copyPickupNumber">Copy</button></p>
+			<p>{{pickupId}}<button @click="copyPickupId">Copy</button></p>
+			<p>
+				<button @click="pickupEvent(300)" :disabled="busy || orderStatus >= 300">Ready for Pickup</button>
+				<button @click="pickupEvent(400)" :disabled="busy || orderStatus >= 400">Picked up</button>
+			</p>
 		</div>
 		<div v-if="trackingNumber">
 			<h3>Tracking number</h3>

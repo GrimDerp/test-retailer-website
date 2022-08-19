@@ -6,7 +6,7 @@ createApp({
         return {
             orderNumber: urlParams.get('o'),
             trackingNumber: urlParams.get('t'),
-            pickupNumber: urlParams.get('p'),
+            pickupId: urlParams.get('p'),
             orderStatus: 100,
             orderStatusText: 'placed',
             busy: false,
@@ -19,7 +19,7 @@ createApp({
         },
         copyOrderNumber() { this.toClipboard(this.orderNumber); },
         copyTrackingNumber() { this.toClipboard(this.trackingNumber); },
-        copyPickupNumber() { this.toClipboard(this.pickupNumber); },
+        copyPickupId() { this.toClipboard(this.pickupId); },
         trackingEvent(newStatus) {
             let eventType = '';
             let newStatusText = '';
@@ -44,6 +44,32 @@ createApp({
             if (eventType) {
                 this.busy = true;
                 sendTrackingEvent(this.trackingNumber, eventType)
+                    .then(() => {
+                        this.orderStatus = newStatus;
+                        this.orderStatusText = newStatusText;
+                        this.busy = false;
+                    })
+                    .catch(() => { 
+                        this.busy = false;
+                    });
+            }
+        },
+        pickupEvent(newStatus) {
+            let eventType = '';
+            let newStatusText = '';
+            switch (newStatus) {
+                case 300:
+                    eventType = 'readyForPickup';
+                    newStatusText = 'ready for pickup';
+                    break;
+                case 400:
+                    eventType = 'pickedUp';
+                    newStatusText = 'picked up by client';
+                    break;
+            }
+            if (eventType) {
+                this.busy = true;
+                sendPickupEvent(this.orderNumber, this.pickupId, eventType)
                     .then(() => {
                         this.orderStatus = newStatus;
                         this.orderStatusText = newStatusText;
