@@ -36,18 +36,18 @@
 			<h3>Pickup number</h3>
 			<p>{{pickupId}}<button @click="copyPickupId">Copy</button></p>
 			<p>
-				<button @click="pickupEvent(300)" :disabled="busy || orderStatus >= 300">Ready for Pickup</button>
-				<button @click="pickupEvent(400)" :disabled="busy || orderStatus >= 400">Picked up</button>
+				<button class="event-button" @click="pickupEvent(300)" :disabled="busy || orderStatus >= 300">Ready for Pickup</button>
+				<button class="event-button" @click="pickupEvent(400)" :disabled="busy || orderStatus >= 400">Picked up</button>
 			</p>
 		</div>
 		<div v-if="trackingNumber">
 			<h3>Tracking number</h3>
 			<p>{{trackingNumber}}<button @click="copyTrackingNumber">Copy</button></p>
 			<p>
-				<button @click="trackingEvent(200)" :disabled="busy || orderStatus >= 200">Packaged</button>
-				<button @click="trackingEvent(300)" :disabled="busy || orderStatus >= 300">Picked up</button>
-				<button @click="trackingEvent(400)" :disabled="busy || orderStatus >= 400">Last Mile</button>
-				<button @click="trackingEvent(500)" :disabled="busy || orderStatus >= 500">Delivered</button>
+				<button class="event-button" @click="trackingEvent(200)" :disabled="busy || orderStatus >= 200">Packaged</button>
+				<button class="event-button" @click="trackingEvent(300)" :disabled="busy || orderStatus >= 300">Picked up</button>
+				<button class="event-button" @click="trackingEvent(400)" :disabled="busy || orderStatus >= 400">Last Mile</button>
+				<button class="event-button" @click="trackingEvent(500)" :disabled="busy || orderStatus >= 500">Delivered</button>
 			</p>
 		</div>
 	</div>
