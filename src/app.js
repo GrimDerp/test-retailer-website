@@ -231,14 +231,24 @@ app.post('/carrierEvent/:carrierEventType', function (req, res) {
 });
 
 const pickupEvents = {
-	'PROCESSING': 'Your order is being processed',
-	'READY_FOR_PICKUP': 'Your order is ready for pickup at the store',
-	'PICKED_UP': 'Order picked up by customer',
+	processing: {
+		code: 'PROCESSING',
+		details: 'Your order is being processed',
+	},
+	readyForPickup: {
+		code: 'READY_FOR_PICKUP',
+		details: 'Your order is ready for pickup at the store',
+	},
+	pickedUp: {
+		code: 'PICKED_UP',
+		details: 'Order picked up by customer',
+	},
 };
 
 app.post('/updatePickup/:eventType', function (req, res) {
 	let { eventType } = req.params;
-	if (!pickupEvents[eventType]) {
+	const eventMetadata = pickupEvents[eventType];
+	if (!eventMetadata) {
 		return badRequest(res, "Invalid pickup event type");
 	}
 	const { pickupId, orderNumber } = req.body;
@@ -256,11 +266,12 @@ app.post('/updatePickup/:eventType', function (req, res) {
 		fulfillment_status: eventType,
 		fulfilment_type: "BOPIS",
 	};
+	
 	const pickup = {
 		id: pickupId,
 		status: {
-			code: eventType,
-			message: pickupEvents[eventType],
+			code: eventMetadata.code,
+			message: eventMetadata.details,
 			date: new Date(now).toISOString(),
 		},
 		pickup_by_date: new Date(now + 3 * DAY_TO_MS).toISOString(),

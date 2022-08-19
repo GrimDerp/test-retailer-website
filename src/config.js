@@ -25,7 +25,7 @@ const config = {
         paymentProcessingCertFile: './certificates/paymentProcessing.pem',
     },
     ssl: {
-        enabled: true,
+        enabled: (process.env.SSL_ENABLED !== "false"),
         certFile: './certificates/ssl_cert.pem',
         keyFile: './certificates/ssl_key.pem',
     },
