@@ -52,13 +52,17 @@ const setAttributes = function(order, attributes) {
 }
 
 const addItem = function(order, item) {
-    order.order_info.order_items.push(item);
+    const orderInfo = order.order_info;
+    if (!orderInfo.order_items) orderInfo.order_items = [];
+    orderInfo.order_items.push(item);
     return module.exports;
 }
 
 const addShipment = function(order, shipment, item) {
+    const orderInfo = order.order_info;
+    if (!orderInfo.shipments) orderInfo.shipments = [];
     const now = new Date().getTime();
-    order.order_info.shipments.push(
+    orderInfo.shipments.push(
         Object.assign({
             tracking_number: config.carrier.trackingNumberPrefix + uuid.v4(),
             carrier: config.carrier.carrierMoniker,
@@ -75,7 +79,9 @@ const addShipment = function(order, shipment, item) {
 
 const addPickup = function(order, pickup, item) {
     const now = new Date().getTime();
-    order.order_info.pickups.push(
+    const orderInfo = order.order_info;
+    if (!orderInfo.pickups) orderInfo.pickups = [];
+    orderInfo.pickups.push(
         Object.assign({
             id: config.merchant.pickupIdPrefix + uuid.v4(),
             type: 'BOPIS',

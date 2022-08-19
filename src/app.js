@@ -142,7 +142,7 @@ app.post('/completeOrder', function (req, res) {
 	};
 
 	if (isBopis) {
-		item.fulfilment_type = 'BOPIS';
+		item.fulfillment_type = 'BOPIS';
 		item.fulfillment_status = 'NOT_PICKED_UP';
 		orderBuilder
 			.addItem(order, item)
