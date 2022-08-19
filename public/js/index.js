@@ -33,6 +33,14 @@ const currencyCode = 'USD';
 const supportedNetworks = [ 'amex', 'discover', 'masterCard', 'visa'];
 const merchantCapabilities = [ 'supports3DS' ];
 const requiredShippingContactFields = [ 'postalAddress', 'phone', 'email' ];
+const productCatalog = [
+	{
+		label: 'Snazzy Skis',
+		amount: '8.99',
+		identifier: 'ABC123',
+		detail: '',
+	}
+];
 const shippingMethods = [
 	{
 		label: 'Standard Shipping',
@@ -72,6 +80,7 @@ function applePayButtonClicked() {
 		lineItems: [],
 		total: { label: merchantName }
 	};
+	paymentRequest.lineItems.push(productCatalog[0]);
 	paymentRequest.lineItems.push(shippingMethods[0]);
 	paymentRequest.total.amount = '13.99';
 
@@ -95,6 +104,7 @@ function applePayButtonClicked() {
 		const totalCost = (8.99 + parseFloat(shippingCost)).toFixed(2);
 
 		const lineItems = [
+			productCatalog[0],
 			{
 				label: shippingMethod,
 				amount: shippingCost,
