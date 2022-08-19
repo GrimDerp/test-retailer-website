@@ -245,6 +245,10 @@ const pickupEvents = {
 		details: 'Order picked up by customer',
 	},
 };
+const SEC_TO_MS = 1000;
+const MIN_TO_MS = 60 * SEC_TO_MS;
+const HOURS_TO_MS = 60 * MIN_TO_MS;
+const DAY_TO_MS = 24 * HOURS_TO_MS;
 
 app.post('/updatePickup/:eventType', function (req, res) {
 	let { eventType } = req.params;
@@ -291,7 +295,6 @@ app.post('/updatePickup/:eventType', function (req, res) {
 		});
 	return ordersApi.updateOrder(order, orderNumber).then(() => { res.sendStatus(200); });
 });
-
 
 function badRequest(res, message) {
 	res.status(400).send({
