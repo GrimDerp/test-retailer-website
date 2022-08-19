@@ -27,6 +27,33 @@ function showApplePayButton() {
 	}
 }
 
+const merchantName = 'Narvar';
+const countryCode = 'US';
+const currencyCode = 'USD';
+const supportedNetworks = [ 'amex', 'discover', 'masterCard', 'visa'];
+const merchantCapabilities = [ 'supports3DS' ];
+const requiredShippingContactFields = [ 'postalAddress', 'phone', 'email' ];
+const shippingMethods = [
+	{
+		label: 'Standard Shipping',
+		amount: '5.00',
+		identifier: 'free',
+		detail: 'Delivers in five business days',
+	},
+	{
+		label: 'Express Shipping',
+		amount: '15.00',
+		identifier: 'express',
+		detail: 'Delivers in two business days',
+	},
+	{
+		label: 'Pick Up In Store',
+		amount: '0.00',
+		identifier: 'bopis',
+		detail: 'Pick it up today from your nearest store',
+	},
+];
+
 /**
 * Apple Pay Logic
 * Our entry point for Apple Pay interactions.
@@ -34,47 +61,19 @@ function showApplePayButton() {
 */
 function applePayButtonClicked() {
 	console.log('applePayButtonClicked');
+
 	const paymentRequest = {
-		countryCode: 'US',
-		currencyCode: 'USD',
-		shippingMethods: [
-			{
-				label: 'Standard Shipping',
-				amount: '5.00',
-				identifier: 'free',
-				detail: 'Delivers in five business days',
-			},
-			{
-				label: 'Express Shipping',
-				amount: '15.00',
-				identifier: 'express',
-				detail: 'Delivers in two business days',
-			},
-			{
-				label: 'Pick Up In Store',
-				amount: '0.00',
-				identifier: 'bopis',
-				detail: 'Pick it up today from your nearest store',
-			},
-		],
-
-		lineItems: [
-			{
-				label: 'Standard Shipping',
-				amount: '5.00',
-			}
-		],
-
-		total: {
-			label: 'Test Order',
-			amount: '13.99',
-		},
-
-		supportedNetworks:[ 'amex', 'discover', 'masterCard', 'visa'],
-		merchantCapabilities: [ 'supports3DS' ],
-
-		requiredShippingContactFields: [ 'postalAddress', 'phone', 'email' ],
+		countryCode,
+		currencyCode,
+		shippingMethods,
+		supportedNetworks,
+		merchantCapabilities,
+		requiredShippingContactFields,
+		lineItems: [],
+		total: { label: merchantName }
 	};
+	paymentRequest.lineItems.push(shippingMethods[0]);
+	paymentRequest.total.amount = '13.99';
 
 	const applePayVersion = 1;
 	const session = new ApplePaySession(applePayVersion, paymentRequest);
@@ -103,7 +102,7 @@ function applePayButtonClicked() {
 		];
 
 		const total = {
-			label: 'Apple Pay Example',
+			label: merchantName,
 			amount: totalCost,
 		};
 
