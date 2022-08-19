@@ -30,11 +30,11 @@
 		<h2>Order information</h2>
 		<div v-if="orderNumber">
 			<h3>Order {{orderStatusText}}</h3>
-			<p>{{orderNumber}}<button @click="copyOrderNumber">Copy</button></p>
+			<p>{{orderNumber}}<button class="copy-button" @click="copyOrderNumber">Copy</button></p>
 		</div>
 		<div v-if="pickupId">
 			<h3>Pickup number</h3>
-			<p>{{pickupId}}<button @click="copyPickupId">Copy</button></p>
+			<p>{{pickupId}}<button class="copy-button" @click="copyPickupId">Copy</button></p>
 			<p>
 				<button class="event-button" @click="pickupEvent(300)" :disabled="busy || orderStatus >= 300">Ready for Pickup</button>
 				<button class="event-button" @click="pickupEvent(400)" :disabled="busy || orderStatus >= 400">Picked up</button>
@@ -42,7 +42,7 @@
 		</div>
 		<div v-if="trackingNumber">
 			<h3>Tracking number</h3>
-			<p>{{trackingNumber}}<button @click="copyTrackingNumber">Copy</button></p>
+			<p>{{trackingNumber}}<button class="copy-button" @click="copyTrackingNumber">Copy</button></p>
 			<p>
 				<button class="event-button" @click="trackingEvent(200)" :disabled="busy || orderStatus >= 200">Packaged</button>
 				<button class="event-button" @click="trackingEvent(300)" :disabled="busy || orderStatus >= 300">Picked up</button>
