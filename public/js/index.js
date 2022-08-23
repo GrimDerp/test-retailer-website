@@ -2,31 +2,6 @@
 The main client-side JS. Handles displaying the Apple Pay button and requesting a payment.
 */
 
-/**
-* This method is called when the page is loaded.
-* We use it to show the Apple Pay button as appropriate.
-* Here we're using the ApplePaySession.canMakePayments() method,
-* which performs a basic hardware check. 
-*
-* If we wanted more fine-grained control, we could use
-* ApplePaySession.canMakePaymentsWithActiveCards() instead.
-*/
-document.addEventListener('DOMContentLoaded', () => {
-	if (window.ApplePaySession) {
-		if (ApplePaySession.canMakePayments) {
-			showApplePayButton();
-		}
-	}
-});
-
-function showApplePayButton() {
-	HTMLCollection.prototype[Symbol.iterator] = Array.prototype[Symbol.iterator];
-	const buttons = document.getElementsByClassName('apple-pay-button');
-	for (let button of buttons) {
-		button.className += ' visible';
-	}
-}
-
 const merchantName = 'Narvar';
 const countryCode = 'US';
 const currencyCode = 'USD';
@@ -62,11 +37,22 @@ const shippingMethods = [
 	},
 ];
 
-/**
-* Apple Pay Logic
-* Our entry point for Apple Pay interactions.
-* Triggered when the Apple Pay button is pressed
-*/
+document.addEventListener('DOMContentLoaded', () => {
+	if (window.ApplePaySession) {
+		if (ApplePaySession.canMakePayments) {
+			showApplePayButton();
+		}
+	}
+});
+
+function showApplePayButton() {
+	HTMLCollection.prototype[Symbol.iterator] = Array.prototype[Symbol.iterator];
+	const buttons = document.getElementsByClassName('apple-pay-button');
+	for (let button of buttons) {
+		button.className += ' visible';
+	}
+}
+
 function applePayButtonClicked() {
 	console.log('applePayButtonClicked');
 
