@@ -15,6 +15,7 @@ const config = {
         identificationCertFile: './certificates/merchantIdentity.pem',
         orderNumberPrefix: 'test_retailer_order_',
         pickupIdPrefix: 'test_retailer_pickup_',
+        customerIdPrefix: 'c_',
     },
     carrier: {
         carrierMoniker: 'dhl',
