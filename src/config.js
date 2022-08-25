@@ -51,7 +51,7 @@ if (environment !== 'dev') {
 
 if (environment.startsWith('prod')) {
     config.narvar.ordersApiUrl = 'https://ws.narvar.com/v1/orders';
-    config.featureFlags.logPaymentDetails = false; // DO NOT CHANGE THIS TO TRUE
+    config.featureFlags.logPaymentDetails = false; // DO NOT CHANGE THIS TO TRUE UNDER ANY CIRCUMSTANCES
 }
 
 module.exports = config;

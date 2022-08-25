@@ -28,7 +28,9 @@ const create = function(currency, locale) {
             shipments: [],
             pickups: [],
             billing: {},
-            customer: {},
+            customer: {
+                customer_id: config.merchant.customerIdPrefix + uuid.v4()
+            },
             promotions: [],
             attributes: {}
         }
@@ -37,7 +39,6 @@ const create = function(currency, locale) {
 }
 
 const setCustomer = function(order, customer) {
-    order.customer_id = customer.id = config.merchant.customerIdPrefix + uuid.v4();
     order.order_info.customer = Object.assign(order.order_info.customer, customer);
     return module.exports;
 }
