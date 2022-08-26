@@ -118,6 +118,7 @@ environment variable before starting the application, for example
 
 ```shell
 export NODE_ENV=qa01
+export SSL_ENABLED=true
 npm run dev
 ```
 

@@ -13,7 +13,7 @@ const getOptions = function(override) {
 		headers: {
 			"Content-Type": MIME_TYPE_JSON,
 			"Accept": MIME_TYPE_JSON,
-			"Authorization": "Basic " + config.narvar.authToken
+			"Authorization": "Basic " + config.merchant.authToken
 		},
 		json: true
 	};

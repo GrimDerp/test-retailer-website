@@ -131,18 +131,11 @@ function applePayButtonClicked() {
 					'&t=' + result.trackingNumber + '&p=' + result.pickupId + "&d=" + result.orderDate;
 			})
 			.catch((result) => {
-				if (result.errors) {
-					// In this case the payment request was rejected by payment provider
-					// For example name or address does not match the card provider information
-					// result.errors must be an array of ApplePayError objects
-					session.completePayment({
-						status: ApplePaySession.STATUS_FAILURE,
-						errors: result.errors,
-					});
-				} else {
-					// In this case something else went wrong - network error, service down etc
-					throw result;
-				}
+				console.log('Error processing order: ' + JSON.stringify(result));
+				session.completePayment({
+					status: ApplePaySession.STATUS_FAILURE,
+					errors: result.errors,
+				});
 			});
 	}
 
