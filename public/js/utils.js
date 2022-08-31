@@ -1,3 +1,5 @@
+const { createApp } = Vue;
+
 // Makes a call to the Apple Pay servers via the retailer back-end
 // so that Apple can tell that the request is genuinely from this
 // retailer. The back-end srver will establish a mTLS connection to

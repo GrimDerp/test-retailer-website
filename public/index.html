@@ -6,9 +6,16 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="manifest" href="manifest.json">
 	<link rel="stylesheet" type="text/css" href="css/style.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript"></script>
+	<!-- Use this version of Vue.js for debugging -->
+	<script src="https://unpkg.com/vue@3"></script>
+
+	<!-- Use this version of Vue.js for production. See https://cdnjs.com/libraries/vue -->
+	<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.2.37/vue.global.prod.min.js" integrity="sha512-8GokEWxcB/NrPU4O8BHTgd9dkLouAsvqCnk6BSa2CZw7QXh0QM8GHfS53xYW1QJJVyJWctlcdRQwu5UxeLVsNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
 	<script src="js/utils.js"></script>
 	<script src="js/index.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript"></script>
+	<script src="js/cart.js"></script>
+	<script src="js/apple-pay-button.js"></script>
 	<title>Narvar Test Retailer</title>
 </head>
 
@@ -19,22 +26,30 @@
 				<img src="images/narvar.svg" alt="logo" height="50px" />
 			</div>
 		</div>
-		<div id="header">
-			<img src="images/skis.png" alt="logo" />
+
+		<div id="cart">
+			<h2>Buy these Snazzy Skis with Apple&nbsp;Pay</h2>
+			<div id="header">
+				<img src="images/skis.png" alt="logo" />
+			</div>
 		</div>
-		<h2>Buy these Snazzy Skis with Apple&nbsp;Pay</h2>
-		<p>
-			This is a very very simple example site that demonstrates Apple&nbsp;Pay on the web with Narvar integration
-			to Apple Wallet.
-		</p>
-		<p>
-			<b>No money will be charged to your card</b>
-		</p>
-		<p>
-			Compatible browsers will display an Apple&nbsp;Pay button below.
-		</p>
-		<div class="apple-pay-button" onclick="applePayButtonClicked()"></div>
+
+		<div id="apple-pay-button">
+			<div v-if="applePayAvailable">
+				<div class="apple-pay-button" @click="pay"></div>
+				<div><b>No money will be charged to your card</b></div>
+			</div>
+			<p v-else>
+				Please use a browser that supports Apple&nbsp;Pay
+			</p>
+		</div>
 	</div>
+	<script>
+		document.addEventListener('DOMContentLoaded', () => {
+			cart.mount('#cart');
+			applePayButton.mount('#apple-pay-button');
+		});
+	</script>
 </body>
 
 </html>

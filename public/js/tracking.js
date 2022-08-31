@@ -1,6 +1,4 @@
-const { createApp } = Vue;
-
-createApp({
+const tracking = createApp({
     data() {
         const urlParams = new URLSearchParams(window.location.search);
         return {
@@ -82,4 +80,4 @@ createApp({
             }
         }
     }
-}).mount('#tracking');
+});
