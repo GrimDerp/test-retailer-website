@@ -9,10 +9,10 @@ const productCatalog = [
 		size: "Medium"
 	},
 	{
-		label: 'Purfect Poles',
+		label: 'Purrfect Poles',
 		price: 11.49,
 		identifier: 'SNOW002',
-		detail: 'These are the purfect ski poles to get you noticed in all the best places',
+		detail: 'These are the purrfect ski poles to get you noticed in all the best places',
 		imageUrl: 'images/poles.png',
 		color: "White",
 		size: "Medium"
@@ -42,14 +42,11 @@ const cartData = {
 	items: [{
 		product: productCatalog[0],
 		quantity: 1,
-		total: 0,
 	}, {
 		product: productCatalog[1],
 		quantity: 1,
-		total: 0,
 	}],
 	shipping: shippingMethods[0],
-	total: 0,
 
 	recalculate: function() {
 		let subTotal = 0;

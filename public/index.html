@@ -29,18 +29,45 @@
 
 		<div id="cart">
 			<h2>Shopping Cart</h2>
+
 			<div v-for="item in cartData.items" class="item">
-				<div class="thumbnail"><img :src="item.product.imageUrl" :alt="item.product.identifier" /></div>
+				<div class="thumbnail"><img :src="item.product.imageUrl" :alt="item.product.identifier"
+						class="product-image" /></div>
 				<div class="product-details">
 					<p class="label">{{item.product.label}}</p>
 					<p class="detail">{{item.product.detail}}</p>
 					<p class="attribute"><b>Color:</b> {{item.product.color}}</p>
 					<p class="attribute"><b>Size:</b> {{item.product.size}}</p>
-					<p class="quantity"><b>Qty:</b> <input type="number" min="0" :value="item.quantity" @input="ev => quantityChanged(item, ev.target.value)"></p>
+					<p class="quantity"><b>Qty:</b> <input type="number" min="0" :value="item.quantity"
+							@input="ev => quantityChanged(item, ev.target.value)"></p>
 				</div>
 				<div class="price">{{toCurrency(item.product.price)}}</div>
 			</div>
-			<div class="sub-total">Subtotal: <b>{{toCurrency(cartData.total)}}</b></div>
+			<div v-if="shippingMethodsVisible" class="shipping-methods">
+				<div v-for="method in shippingMethods" class="shipping-method" @click="selectShippingMethod(method)">
+					<div class="selector">
+						<img v-if="method.identifier == cartData.shipping.identifier" src="images/selector-right.svg"
+							:alt="method.label" class="cta-image">
+						<img v-else src="images/selector-right-hollow.svg" :alt="method.label" class="cta-image">
+					</div>
+					<div class="product-details">
+						<p class="label">{{method.label}}</p>
+						<p class="detail">{{method.detail}}</p>
+					</div>
+					<div class="price">{{toCurrency(method.price)}}</div>
+				</div>
+			</div>
+			<div v-else class="shipping" @click="openShippingMethods">
+				<div class="selector">
+					<img src="images/selector-right.svg" :alt="cartData.shipping.label" class="cta-image">
+				</div>
+				<div class="product-details label">{{cartData.shipping.label}}</div>
+				<div class="price">{{toCurrency(cartData.shipping.price)}}</div>
+			</div>
+			<div class="options">
+				Minimize the number of shipments <input type="checkbox" v-model="minimizeShipments">
+			</div>
+			<div class="order-total">Order total: <b>{{toCurrency(cartData.total)}}</b></div>
 		</div>
 
 		<div id="apple-pay-button">
