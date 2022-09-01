@@ -186,7 +186,10 @@ app.post('/completeOrder', function (req, res) {
 			ordersApi.getOrderDetails(order)
 				.then((orderDetails) => {
 					const result = { orderNumber, trackingNumbers, pickupIds, orderDetails, orderDate };
-					logger.log(result);
+					if (config.featureFlags.logSuccess) {
+						logger.log('Response to client:');
+						logger.log(result);
+					}
 					res.send(result);
 				})
 				.catch((err) => {
