@@ -65,10 +65,10 @@ app.post('/proxyApplePay', function (req, res) {
  * return the order details required for Apple Wallet integration
  */
 app.post('/completeOrder', function (req, res) {
-	const paymentRequest = req.body.paymentRequest;
+	const cart = req.body.cart;
 	const payment = req.body.payment;
 	const shippingContact = payment.shippingContact;
-	const shippingMethod = paymentRequest.lineItems[0];
+	const shippingMethod = cart.shipping;
 
 	if (config.featureFlags.logPaymentDetails) {
 		logger.log('/completeOrder');
@@ -77,8 +77,8 @@ app.post('/completeOrder', function (req, res) {
 		logger.log('payment.token.paymentMethod');
 		logger.log(payment.token.paymentMethod);
 
-		logger.log('paymentRequest.lineItems');
-		logger.log(paymentRequest.lineItems);
+		logger.log('cart.items');
+		logger.log(cart.items);
 	}
 
 	var locale = 'en_US';
@@ -89,7 +89,7 @@ app.post('/completeOrder', function (req, res) {
 	}
 
 	// Construct an order from the shopping cart and payment information
-	const order = orderBuilder.create(paymentRequest.currencyCode, locale);
+	const order = orderBuilder.create(cart.currencyCode, locale);
 	const orderDate = order.order_info.order_date;
 	const orderNumber = order.order_info.order_number;
 	const isBopis = shippingMethod.label == 'Pick Up In Store';
@@ -110,70 +110,84 @@ app.post('/completeOrder', function (req, res) {
 		last_name: shippingContact.familyName,
 		phone: shippingContact.phoneNumber,
 	};
-	const amount = parseFloat(paymentRequest.total.amount);
-	const shippingAmount = parseFloat(shippingMethod.amount);
 
 	// Populate Narvar order information
 	orderBuilder.setCustomer(order, customer)
 		.setBilling(order, {
 			billed_to: address,
-			amount,
+			amount: cart.total,
 			tax_rate: 0,
 			tax_amount: 0,
-			shipping_handling: shippingAmount,
+			shipping_handling: shippingMethod.price,
 			payments: [{
 				card: payment.token.paymentMethod.displayName,
 				merchant: payment.token.paymentMethod.network,
 				is_gift_card: false,
-				amount,
+				amount: cart.total,
 			}]
 		});
 
-	let trackingNumber = '';
-	let pickupId = '';
+	const trackingNumbers = [];
+	const pickupIds = [];
 
-	const item = {
-		sku: 'ABC123',
-		name: 'Snazzy Skis',
-		quantity: 1,
-		unit_price: 8.99,
-		item_image: 'https://test-retailer.narvar.qa/images/skis.png',
-		item_url: 'https://test-retailer.narvar.qa/'
-	};
-
-	if (isBopis) {
-		item.fulfillment_type = 'BOPIS';
-		item.fulfillment_status = 'NOT_PICKED_UP';
-		orderBuilder
-			.addItem(order, item)
-			.addPickup(order, {
-				type: 'BOPIS'
-			}, {
-				sku: 'ABC123',
-				quantity: 1
-			});
-		pickupId = order.order_info.pickups[0].id;
-	} else {
-		item.fulfillment_status = 'NOT_SHIPPED';
-		orderBuilder
-			.addItem(order, item)
-			.addShipment(order, {
-				shipped_to: customer,
-				ship_total: shippingAmount
-			}, {
-				sku: 'ABC123',
-				quantity: 1
-			});
-
-		trackingNumber = order.order_info.shipments[0].tracking_number;
+	if (cart.minimizeShipments) {
+		if (isBopis) {
+			orderBuilder.addPickup(order, { type: 'BOPIS' });
+			pickupIds.push(order.order_info.pickups[0].id);
+		} else {
+			orderBuilder.addShipment(order, { shipped_to: customer, ship_total: shippingMethod.price });
+			trackingNumbers.push(order.order_info.shipments[0].tracking_number);
+		}
 	}
+
+	cart.items.forEach(orderItem => {
+		if (orderItem.quantity > 0) {
+			const item = {
+				sku: orderItem.product.identifier,
+				name: orderItem.product.label,
+				quantity: orderItem.quantity,
+				unit_price: orderItem.product.price,
+				item_image: orderItem.product.imageUrl,
+				item_url: 'https://test-retailer.narvar.qa/' + orderItem.product.identifier
+			};
+
+			if (isBopis) {
+				item.fulfillment_type = 'BOPIS';
+				item.fulfillment_status = 'NOT_PICKED_UP';
+				if (!cart.minimizeShipments) {
+					orderBuilder.addPickup(order, { type: 'BOPIS' });
+					pickupIds.push(order.order_info.pickups[order.order_info.pickups.length - 1].id);		
+				}
+				orderBuilder
+					.addItem(order, item)
+					.addPickupItem(order, {
+						sku: item.sku,
+						quantity: item.quantity
+					});
+			} else {
+				item.fulfillment_status = 'NOT_SHIPPED';
+				if (!cart.minimizeShipments) {
+					orderBuilder.addShipment(order, { shipped_to: customer, ship_total: shippingMethod.price });
+					trackingNumbers.push(order.order_info.shipments[order.order_info.shipments.length - 1].tracking_number);
+				}
+				orderBuilder
+					.addItem(order, item)
+					.addShipmentItem(order, {
+						sku: item.sku,
+						quantity: item.quantity
+					});
+			}
+		}
+	});
 
 	// Post the order to Narvar and get order details for Apple Wallet integration
 	return ordersApi.postOrder(order)
 		.then(() => {
 			ordersApi.getOrderDetails(order)
 				.then((orderDetails) => {
-					res.send({ orderNumber, trackingNumber, pickupId, orderDetails, orderDate });
+					const result = { orderNumber, trackingNumbers, pickupIds, orderDetails, orderDate };
+					logger.log(result);
+					res.send(result);
 				})
 				.catch((err) => {
 					logger.error('Error getting order details');
@@ -228,7 +242,7 @@ app.post('/carrierEvent/:carrierEventType', function (req, res) {
 	} = typeMetadata;
 	const carrierData = carrierDataBuilder.create(trackingNumber, carrierStatusCode, message, narvarStatusCode);
 	return carrierDataIngestion.carrierEvent(carrierData).then(() => { res.sendStatus(200); });
-	
+
 });
 
 const pickupEvents = {
@@ -272,7 +286,7 @@ app.post('/updatePickup/:eventType', function (req, res) {
 		fulfillment_status: eventMetadata.code,
 		fulfillment_type: "BOPIS",
 	};
-	
+
 	const pickup = {
 		id: pickupId,
 		status: {
@@ -289,10 +303,8 @@ app.post('/updatePickup/:eventType', function (req, res) {
 	}
 	orderBuilder
 		.addItem(order, item)
-		.addPickup(order, pickup, {
-			sku: 'ABC123',
-			quantity: 1
-		});
+		.addPickup(order, pickup)
+		.addPickupItem(order, { sku: 'ABC123', quantity: 1 });
 	return ordersApi.updateOrder(order, orderNumber).then(() => { res.sendStatus(200); });
 });
 
@@ -317,7 +329,7 @@ if (config.environment === "dev") {
 				],
 				"total": {
 					"amount": 23.45
-		
+
 				}
 			},
 			"payment": {

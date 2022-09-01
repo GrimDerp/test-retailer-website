@@ -14,8 +14,8 @@ const productCatalog = [
 		identifier: 'SNOW002',
 		detail: 'These are the purrfect ski poles to get you noticed in all the best places',
 		imageUrl: 'images/ski-poles.svg',
-		color: "White",
-		size: "Medium"
+		color: "Black",
+		size: "Long"
 	},
 ];
 const shippingMethods = [
@@ -47,6 +47,8 @@ const cartData = {
 		quantity: 1,
 	}],
 	shipping: shippingMethods[0],
+	minimizeShipments: true,
+	currencyCode,
 
 	recalculate: function() {
 		let subTotal = 0;

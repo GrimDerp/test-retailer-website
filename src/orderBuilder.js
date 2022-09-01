@@ -60,7 +60,7 @@ const addItem = function(order, item) {
     return module.exports;
 }
 
-const addShipment = function(order, shipment, item) {
+const addShipment = function(order, shipment) {
     const orderInfo = order.order_info;
     if (!orderInfo.shipments) orderInfo.shipments = [];
     const now = new Date().getTime();
@@ -71,15 +71,22 @@ const addShipment = function(order, shipment, item) {
             ship_source: 'DC',
             ship_date: new Date(now + 3 * HOURS_TO_MS).toISOString(),
             promise_date: new Date(now + 3 * DAY_TO_MS).toISOString(),
-            items_info: [{
-                quantity: item.quantity,
-                sku: item.sku
-            }]
+            items_info: []
     }, shipment));
     return module.exports;
 }
 
-const addPickup = function(order, pickup, item) {
+const addShipmentItem = function(order, item) {
+    const orderInfo = order.order_info;
+    const shipment = orderInfo.shipments[orderInfo.shipments.length - 1];
+    shipment.items_info.push({
+        quantity: item.quantity,
+        sku: item.sku
+    });
+    return module.exports;
+}
+
+const addPickup = function(order, pickup) {
     const now = new Date().getTime();
     const orderInfo = order.order_info;
     if (!orderInfo.pickups) orderInfo.pickups = [];
@@ -94,10 +101,7 @@ const addPickup = function(order, pickup, item) {
             },
             eta: new Date(now + 30 * MIN_TO_MS).toISOString(),
             pickup_by_date: new Date(now + 3 * DAY_TO_MS).toISOString(),
-            items_info: [{
-                quantity: item.quantity,
-                sku: item.sku
-            }],
+            items_info: [],
             store: {
                 id: 'Store_0001',
                 name: 'Central Boulevard',
@@ -138,6 +142,16 @@ const addPickup = function(order, pickup, item) {
     return module.exports;
 }
 
+const addPickupItem = function(order, item) {
+    const orderInfo = order.order_info;
+    const pickup = orderInfo.pickups[orderInfo.pickups.length - 1];
+    pickup.items_info.push({
+        quantity: item.quantity,
+        sku: item.sku
+    });
+    return module.exports;
+}
+
 module.exports = {
     create,
     update,
@@ -146,5 +160,7 @@ module.exports = {
     setAttributes,
     addItem,
     addShipment,
-    addPickup
+    addShipmentItem,
+    addPickup,
+    addPickupItem
 }

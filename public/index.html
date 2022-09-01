@@ -65,7 +65,7 @@
 				<div class="price">{{toCurrency(cartData.shipping.price)}}</div>
 			</div>
 			<div class="options">
-				Minimize the number of shipments <input type="checkbox" v-model="minimizeShipments">
+				Minimize the number of shipments <input type="checkbox" v-model="cartData.minimizeShipments">
 			</div>
 			<div class="order-total">Order total: <b>{{toCurrency(cartData.total)}}</b></div>
 		</div>

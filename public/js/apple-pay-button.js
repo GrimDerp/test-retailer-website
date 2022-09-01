@@ -55,14 +55,14 @@ const applePayButton = createApp({
             session.onpaymentauthorized = (event) => {
                 console.log('session.onpaymentauthorized');
 
-                processPayment(paymentRequest, event.payment)
+                processPayment(cartData, event.payment)
                     .then((result) => {
                         session.completePayment({
                             status: ApplePaySession.STATUS_SUCCESS,
                             orderDetails: result.orderDetails,
                         });
                         window.location.href = '/success.html?o=' + result.orderNumber +
-                            '&t=' + result.trackingNumber + '&p=' + result.pickupId + "&d=" + result.orderDate;
+                            '&t=' + result.trackingNumbers + '&p=' + result.pickupIds + "&d=" + result.orderDate;
                     })
                     .catch((result) => {
                         console.log('Error processing order: ' + JSON.stringify(result));

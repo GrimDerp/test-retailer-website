@@ -53,21 +53,21 @@ function uuidv4() {
 // This function is passed payment information (for example credit card details)
 // and should use these details to pay for the order. Since this is a demo website
 // the payment a;ways succeeds without charging the card
-function processPayment(paymentRequest, payment) {
+function processPayment(cart, payment) {
     console.log("processPayment");
-    console.log(paymentRequest);
+    console.log(cart);
     console.log(payment);
 
     // Call a payment provider with payment details and
     // finalize charge this order to the customer's card
 
     // If payment was success, then create an order from the cart contents
-    return createOrder(paymentRequest, payment);
+    return createOrder(cart, payment);
 }
 
 // Following a successful response from the payment provider, the credit card
 // has been changed and it is time to convert the cart into an order.
-function createOrder(paymentRequest, payment) {
+function createOrder(cart, payment) {
     console.log("createOrder");
     return new Promise(function (resolve, reject) {
         var xhr = new XMLHttpRequest();
@@ -84,8 +84,8 @@ function createOrder(paymentRequest, payment) {
                         status: this.status,
                         orderNumber: this.response.orderNumber,
                         orderDate: this.response.orderDate,
-                        trackingNumber: this.response.trackingNumber,
-                        pickupId: this.response.pickupId,
+                        trackingNumbers: this.response.trackingNumbers,
+                        pickupIds: this.response.pickupIds,
                         orderDetails: this.response.orderDetails
                     });
                 }
@@ -104,7 +104,7 @@ function createOrder(paymentRequest, payment) {
         };
         xhr.responseType = 'json';
         xhr.setRequestHeader("Content-Type", "application/json");
-        xhr.send(JSON.stringify({ paymentRequest, payment }));
+        xhr.send(JSON.stringify({ cart, payment }));
     });
 }
 

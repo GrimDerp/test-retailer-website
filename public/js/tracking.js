@@ -1,25 +1,37 @@
 const tracking = createApp({
     data() {
         const urlParams = new URLSearchParams(window.location.search);
-        return {
+        const data = {
             orderNumber: urlParams.get('o'),
             orderDate: urlParams.get('d'),
-            trackingNumber: urlParams.get('t'),
-            pickupId: urlParams.get('p'),
-            orderStatus: 100,
-            orderStatusText: 'placed',
+            shipments: [],
+            pickups: [],
             busy: false,
         }
+        if (urlParams.get('t')) 
+            urlParams.get('t').split(',').forEach(function(trackingNumber){
+                data.shipments.push({
+                    trackingNumber,
+                    status: 100,
+                    statusText: 'not shipped'
+                })
+            });
+        if (urlParams.get('p'))
+            urlParams.get('p').split(',').forEach(function(pickupId){
+                data.pickups.push({
+                    pickupId,
+                    status: 100,
+                    statusText: 'not picked up'
+                })
+            });
+        return data;
     },
     methods: {
         toClipboard(text) {
             navigator.clipboard.writeText(this.orderNumber);
             alert(text + ' copied to clipboard');
         },
-        copyOrderNumber() { this.toClipboard(this.orderNumber); },
-        copyTrackingNumber() { this.toClipboard(this.trackingNumber); },
-        copyPickupId() { this.toClipboard(this.pickupId); },
-        trackingEvent(newStatus) {
+        trackingEvent(shipment, newStatus) {
             let eventType = '';
             let newStatusText = '';
             switch (newStatus) {
@@ -42,18 +54,19 @@ const tracking = createApp({
             }
             if (eventType) {
                 this.busy = true;
-                sendTrackingEvent(this.trackingNumber, eventType)
+                sendTrackingEvent(shipment.trackingNumber, eventType)
                     .then(() => {
-                        this.orderStatus = newStatus;
-                        this.orderStatusText = newStatusText;
+                        shipment.status = newStatus;
+                        shipment.statusText = newStatusText;
                         this.busy = false;
                     })
                     .catch(() => { 
+                        console.log('Failed to record shipment event');
                         this.busy = false;
                     });
             }
         },
-        pickupEvent(newStatus) {
+        pickupEvent(pickup, newStatus) {
             let eventType = '';
             let newStatusText = '';
             switch (newStatus) {
@@ -68,13 +81,14 @@ const tracking = createApp({
             }
             if (eventType) {
                 this.busy = true;
-                sendPickupEvent(this.orderNumber, this.orderDate, this.pickupId, eventType)
+                sendPickupEvent(this.orderNumber, this.orderDate, pickup.pickupId, eventType)
                     .then(() => {
-                        this.orderStatus = newStatus;
-                        this.orderStatusText = newStatusText;
+                        pickup.status = newStatus;
+                        pickup.statusText = newStatusText;
                         this.busy = false;
                     })
                     .catch(() => { 
+                        console.log('Failed to record pickup event');
                         this.busy = false;
                     });
             }

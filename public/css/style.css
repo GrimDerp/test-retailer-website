@@ -20,6 +20,7 @@ body {
 h2 {
 	font-weight: 300;
 	font-size: xx-large;
+	margin: 8px;
 }
 
 p {
@@ -101,11 +102,6 @@ button:disabled {
 	transition: background-color .25s;
 }
 
-h2 {
-	text-align: left;
-	margin: 8px;
-}
-
 .event-button {
 	padding: 0px;
 	margin: 5px;
@@ -118,6 +114,10 @@ h2 {
 	margin: 2px;
 	width: 60px;
 	min-height: 20px;
+}
+
+#cart h2 {
+	text-align: left;
 }
 
 #cart .item {

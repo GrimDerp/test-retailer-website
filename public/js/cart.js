@@ -4,7 +4,6 @@ const cart = createApp({
             cartData,
             shippingMethods,
             shippingMethodsVisible: false,
-            minimizeShipments: true
         }
     },
     methods: {
