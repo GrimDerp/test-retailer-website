@@ -176,21 +176,21 @@ button:disabled {
 	padding: 5px;
 	float: left;
 	vertical-align: top;
-	width: 120px;
+	width: 30%;
 }
 
 #cart .selector {
 	padding: 0;
 	float: left;
 	vertical-align: top;
-	width: 130px;
+	width: 30%;
 	height: 50px;
 }
 
 #cart .product-details {
 	float: left;
 	vertical-align: top;
-	width: 400px;
+	width: 50%;
 }
 
 #cart .price {
