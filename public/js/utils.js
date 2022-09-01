@@ -1,5 +1,19 @@
 const { createApp } = Vue;
 
+const merchantName = 'Narvar';
+const countryCode = 'US';
+const currencyCode = 'USD';
+const supportedNetworks = [ 'amex', 'discover', 'masterCard', 'visa'];
+const merchantCapabilities = [ 'supports3DS' ];
+const requiredShippingContactFields = [ 'postalAddress', 'phone', 'email' ];
+
+const currencyFormat = new Intl.NumberFormat('en-' + countryCode , { 
+    style: 'currency', 
+    currency: currencyCode,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+});
+
 // Makes a call to the Apple Pay servers via the retailer back-end
 // so that Apple can tell that the request is genuinely from this
 // retailer. The back-end srver will establish a mTLS connection to

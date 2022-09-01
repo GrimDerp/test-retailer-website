@@ -8,12 +8,6 @@ const applePayButton = createApp({
         pay() {
             console.log('applePayButtonClicked');
 
-            const currencyFormat = new Intl.NumberFormat('en-' + countryCode , { 
-                style: 'currency', 
-                currency: currencyCode,
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
             const formatCurrency = function(amount) {
                 return currencyFormat.format(amount).substring(1);
             }
@@ -33,7 +27,7 @@ const applePayButton = createApp({
                         label: item.quantity + ' x ' + item.product.label,
                         detail: item.product.detail,
                         identifier: item.product.identifier,
-                        amount: formatCurrency(item.totalAmount)
+                        amount: formatCurrency(item.total)
                     });
                 }
             });
@@ -41,7 +35,7 @@ const applePayButton = createApp({
                 label: cartData.shipping.label,
                 detail: cartData.shipping.detail,
                 identifier: cartData.shipping.identifier,
-                amount: formatCurrency(cartData.shipping.amount)
+                amount: formatCurrency(cartData.shipping.price)
             });
             paymentRequest.total.amount = formatCurrency(cartData.total);
 

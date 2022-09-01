@@ -28,16 +28,25 @@
 		</div>
 
 		<div id="cart">
-			<h2>Buy these Snazzy Skis with Apple&nbsp;Pay</h2>
-			<div id="header">
-				<img src="images/skis.png" alt="logo" />
+			<h2>Shopping Cart</h2>
+			<div v-for="item in cartData.items" class="item">
+				<div class="thumbnail"><img :src="item.product.imageUrl" :alt="item.product.identifier" /></div>
+				<div class="product-details">
+					<p class="label">{{item.product.label}}</p>
+					<p class="detail">{{item.product.detail}}</p>
+					<p class="attribute"><b>Color:</b> {{item.product.color}}</p>
+					<p class="attribute"><b>Size:</b> {{item.product.size}}</p>
+					<p class="quantity"><b>Qty:</b> <input type="number" min="0" :value="item.quantity" @input="ev => quantityChanged(item, ev.target.value)"></p>
+				</div>
+				<div class="price">{{toCurrency(item.product.price)}}</div>
 			</div>
+			<div class="sub-total">Subtotal: <b>{{toCurrency(cartData.total)}}</b></div>
 		</div>
 
 		<div id="apple-pay-button">
 			<div v-if="applePayAvailable">
 				<div class="apple-pay-button" @click="pay"></div>
-				<div><b>No money will be charged to your card</b></div>
+				<div><b>No charge will be made on your card</b></div>
 			</div>
 			<p v-else>
 				Please use a browser that supports Apple&nbsp;Pay

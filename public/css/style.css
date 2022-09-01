@@ -6,11 +6,9 @@ div#wrapperHeader {
 
 div#wrapperHeader div#header {
  width:100%;
- height:200px;
+ height:70px;
  margin:0 auto;
 }
-
-
 
 body {
 	font-family: -apple-system, "Helvetica Neue", "Lucida Grande";
@@ -103,6 +101,11 @@ button:disabled {
 	transition: background-color .25s;
 }
 
+h2 {
+	text-align: left;
+	margin: 8px;
+}
+
 .event-button {
 	padding: 0px;
 	margin: 5px;
@@ -115,4 +118,65 @@ button:disabled {
 	margin: 2px;
 	width: 60px;
 	min-height: 20px;
+}
+
+#cart .item {
+	float: unset;
+	border-top: solid 1px lightgray;
+	padding: 5px;
+	width: 100%;
+	height: 150px;
+}
+
+#cart img {
+	width: 100px;
+}
+
+#cart .thumbnail {
+	padding: 5px;
+	float: left;
+	vertical-align: top;
+	width: 120px;
+}
+
+#cart .product-details {
+	float: left;
+	vertical-align: top;
+	width: 400px;
+}
+
+#cart .price {
+	text-align: right;
+	float: none;
+	vertical-align: top;
+}
+
+#cart .label {
+	margin: 0;
+	text-align: left;
+	font-size: large;
+}
+
+#cart .detail {
+	margin: 0;
+	text-align: left;
+	font-size: smaller;
+}
+
+#cart .attribute {
+	margin: 0;
+	text-align: left;
+	font-size: small;
+}
+
+#cart .quantity {
+	text-align: left;
+}
+
+#cart .quantity input {
+	width: 40px;
+}
+
+#cart .sub-total {
+	text-align: right;
 }
