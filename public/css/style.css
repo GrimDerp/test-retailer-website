@@ -169,7 +169,7 @@ button:disabled {
 }
 
 #cart .cta-image {
-	width: 30px;
+	width: 20px;
 }
 
 #cart .thumbnail {
@@ -180,11 +180,12 @@ button:disabled {
 }
 
 #cart .selector {
-	padding: 0;
+	padding: 0 10px 0 0;
 	float: left;
 	vertical-align: top;
 	width: 30%;
 	height: 50px;
+	text-align: right;
 }
 
 #cart .product-details {
