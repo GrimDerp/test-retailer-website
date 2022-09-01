@@ -13,7 +13,7 @@ const productCatalog = [
 		price: 11.49,
 		identifier: 'SNOW002',
 		detail: 'These are the purrfect ski poles to get you noticed in all the best places',
-		imageUrl: 'images/poles.png',
+		imageUrl: 'images/ski-poles.svg',
 		color: "White",
 		size: "Medium"
 	},
