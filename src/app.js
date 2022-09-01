@@ -140,6 +140,8 @@ app.post('/completeOrder', function (req, res) {
 		}
 	}
 
+	const baseUrl = 'https://' + config.merchant.domain + '/';
+
 	cart.items.forEach(orderItem => {
 		if (orderItem.quantity > 0) {
 			const item = {
@@ -147,8 +149,8 @@ app.post('/completeOrder', function (req, res) {
 				name: orderItem.product.label,
 				quantity: orderItem.quantity,
 				unit_price: orderItem.product.price,
-				item_image: orderItem.product.imageUrl,
-				item_url: 'https://test-retailer.narvar.qa/' + orderItem.product.identifier
+				item_image: baseUrl + orderItem.product.imageUrl,
+				item_url: baseUrl + orderItem.product.identifier
 			};
 
 			if (isBopis) {
